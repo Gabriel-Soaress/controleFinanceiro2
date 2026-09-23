@@ -11,10 +11,21 @@ import TabelaContas from '../components/TabelaContas';
 import ModalPagamento from '../components/modais/ModalPagamento';
 import ModalAdicionarSaldo from '../components/modais/ModalAdicionarSaldo';
 import ModalCarteiras from '../components/modais/ModalCarteiras';
+import RelatorioImpressao from './RelatorioImpressao';
 
+import { API_BASE_URL } from '../services/api';
+
+const traduzirConta = (item) => ({
+    ...item,
+    numero_boleto: item.referencia,
+    emissao: item.data_emissao ? item.data_emissao.split('T')[0] : '',
+    vencimento: item.data_vencimento ? item.data_vencimento.split('T')[0] : '',
+    data_pagamento: item.data_pagamento ? item.data_pagamento.split('T')[0] : ''
+});
 
 function Dashboard({usuarioId}) {
-    // 1. ESTADOS VISUAIS (Controle dos Modais)
+    // 1. ESTADOS VISUAIS (Controle dos Modais e Telas)
+    const [telaAtual, setTelaAtual] = useState('dashboard'); // 'dashboard' | 'relatorio'
     const [modalSaldoAberto, setModalSaldoAberto] = useState(false);
     const [modalCarteirasAberto, setModalCarteirasAberto] = useState(false);
     const [contaParaPagar, setContaParaPagar] = useState(null);
@@ -25,9 +36,16 @@ function Dashboard({usuarioId}) {
     const [listaContas, setListaContas] = useState([]);
 
 // --- NOVOS ESTADOS DOS FILTROS ---
+    const anoAtualPadrao = new Date().getFullYear();
+    const mesAtualPadrao = new Date().getMonth() + 1;
+    const mesPadraoFormatado = String(mesAtualPadrao).padStart(2, '0');
+    const ultimoDiaPadrao = new Date(anoAtualPadrao, mesAtualPadrao, 0).getDate();
+
     const [filtros, setFiltros] = useState({
-        inicio: '2026-01-01',
-        fim: '2026-12-31',
+        ano: anoAtualPadrao,
+        mes: mesAtualPadrao,
+        inicio: `${anoAtualPadrao}-${mesPadraoFormatado}-01`,
+        fim: `${anoAtualPadrao}-${mesPadraoFormatado}-${String(ultimoDiaPadrao).padStart(2, '0')}`,
         categoria: '',
         texto: ''
     });
@@ -56,29 +74,22 @@ function Dashboard({usuarioId}) {
                 const headers = { 'user-id': usuarioId };
 
                 // --- PARTE 1: BUSCAR CATEGORIAS ---
-                const respostaCat = await fetch('https://finceiroapi.onrender.com/categorias', { headers });
+                const respostaCat = await fetch(`${API_BASE_URL}/categorias`, { headers });
                 if (!respostaCat.ok) throw new Error('Erro ao buscar categorias');
                 const dadosCat = await respostaCat.json();
                 setListaCategorias(dadosCat);
 
                 // --- PARTE 2: BUSCAR CONTAS ---
-                const respostaContas = await fetch('https://finceiroapi.onrender.com/contas', { headers });
+                const respostaContas = await fetch(`${API_BASE_URL}/contas`, { headers });
                 if (!respostaContas.ok) throw new Error('Erro ao buscar contas');
                 const dadosContasBrutos = await respostaContas.json();
 
                 // --- PARTE 3: A TRADUÇÃO ---
-                const contasTraduzidas = dadosContasBrutos.map((item) => {
-                    return {
-                        ...item,
-                        numero_boleto: item.referencia,
-                        emissao: item.data_emissao ? item.data_emissao.split('T')[0] : '',
-                        vencimento: item.data_vencimento ? item.data_vencimento.split('T')[0] : ''
-                    };
-                });
+                const contasTraduzidas = dadosContasBrutos.map(traduzirConta);
                 setListaContas(contasTraduzidas);
 
                 // --- PARTE 4: CARTEIRAS ---
-                const res3 = await fetch('https://finceiroapi.onrender.com/carteiras', { headers });
+                const res3 = await fetch(`${API_BASE_URL}/carteiras`, { headers });
                 if (res3.ok) {
                     const dadosCarteiras = await res3.json();
                     setMinhasCarteiras(dadosCarteiras);
@@ -100,7 +111,7 @@ function Dashboard({usuarioId}) {
             if (!usuarioId) return;
 
             try {
-                const url = `https://finceiroapi.onrender.com/movimentacoes?inicio=${filtros.inicio}&fim=${filtros.fim}`;
+                const url = `${API_BASE_URL}/movimentacoes?inicio=${filtros.inicio}&fim=${filtros.fim}`;
 
                 // AQUI TAMBÉM PRECISA DO HEADER AGORA!
                 const res = await fetch(url, { headers: { 'user-id': usuarioId } });
@@ -114,11 +125,15 @@ function Dashboard({usuarioId}) {
                     )
                     .reduce((acc, m) => acc + Number(m.valor), 0);
 
-                // Calcular SAÍDAS
+                // Calcular SAÍDAS: Contas que foram pagas no período selecionado
                 const totalSaidas = listaContas
-                    .filter(c => c.status === 'PAGO' &&
-                        new Date(c.vencimento) >= new Date(filtros.inicio) &&
-                        new Date(c.vencimento) <= new Date(filtros.fim))
+                    .filter(c => {
+                        if (c.status !== 'PAGO') return false;
+                        const dataPag = c.data_pagamento || c.emissao || c.vencimento;
+                        const bateData = (!filtros.inicio || dataPag >= filtros.inicio) &&
+                                         (!filtros.fim || dataPag <= filtros.fim);
+                        return bateData;
+                    })
                     .reduce((acc, c) => acc + Number(c.valor_original), 0);
 
                 setResumoValores({ entradas: totalEntradas, saidas: totalSaidas });
@@ -136,7 +151,7 @@ function Dashboard({usuarioId}) {
 
     const criarConta = async (novaConta) => {
         try {
-            const resposta = await fetch('https://finceiroapi.onrender.com/contas', {
+            const resposta = await fetch(`${API_BASE_URL}/contas`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -147,13 +162,7 @@ function Dashboard({usuarioId}) {
 
             if (!resposta.ok) throw new Error('Erro ao salvar conta');
             const contaVindaDoBanco = await resposta.json();
-
-            const contaTraduzida = {
-                ...contaVindaDoBanco,
-                numero_boleto: contaVindaDoBanco.referencia,
-                emissao: contaVindaDoBanco.data_emissao ? contaVindaDoBanco.data_emissao.split('T')[0] : '',
-                vencimento: contaVindaDoBanco.data_vencimento ? contaVindaDoBanco.data_vencimento.split('T')[0] : ''
-            };
+            const contaTraduzida = traduzirConta(contaVindaDoBanco);
 
             setListaContas((listaAtual) => [...listaAtual, contaTraduzida]);
 
@@ -165,7 +174,7 @@ function Dashboard({usuarioId}) {
     const excluirConta = async (id) =>{
         try{
             // DELETE também precisa de header pra saber se a conta é sua
-            const resposta = await fetch(`https://finceiroapi.onrender.com/contas/${id}`,{
+            const resposta = await fetch(`${API_BASE_URL}/contas/${id}`,{
                 method: 'DELETE',
                 headers: { 'user-id': usuarioId }
             });
@@ -179,7 +188,7 @@ function Dashboard({usuarioId}) {
 
     const editarConta = async (contaEditada) => {
         try {
-            const resposta = await fetch(`https://finceiroapi.onrender.com/contas/${contaEditada.id}`,{
+            const resposta = await fetch(`${API_BASE_URL}/contas/${contaEditada.id}`,{
                 method: 'PUT',
                 headers:{
                     'Content-Type': 'application/json',
@@ -190,14 +199,9 @@ function Dashboard({usuarioId}) {
 
             if (!resposta.ok) throw new Error('Erro ao editar conta');
             const contaVindaDobanco = await resposta.json();
+            const contaTraduzida = traduzirConta(contaVindaDobanco);
 
-            // Precisamos traduzir de volta pois o PUT retorna nomes do banco
-            const contaTraduzida = {
-                ...contaVindaDobanco,
-                numero_boleto: contaVindaDobanco.referencia,
-                emissao: contaVindaDobanco.data_emissao ? contaVindaDobanco.data_emissao.split('T')[0] : '',
-                vencimento: contaVindaDobanco.data_vencimento ? contaVindaDobanco.data_vencimento.split('T')[0] : ''
-            };
+            setListaContas((listaAtual) => listaAtual.map(item => item.id === contaEditada.id ? contaTraduzida : item));
 
             setListaContas((listaAtual) => listaAtual.map(item => item.id === contaEditada.id ? contaTraduzida : item));
         }catch(erro) {
@@ -207,7 +211,7 @@ function Dashboard({usuarioId}) {
 
     const adicionarSaldo = async (dadosDoModal) => {
         try {
-            const resposta = await fetch('https://finceiroapi.onrender.com/movimentacoes/entrada',{
+            const resposta = await fetch(`${API_BASE_URL}/movimentacoes/entrada`,{
                 method: 'POST',
                 headers:{
                     'Content-Type': 'application/json',
@@ -218,7 +222,7 @@ function Dashboard({usuarioId}) {
 
             if(!resposta.ok) throw new Error('Erro ao depositar');
 
-            const resCarteiras = await fetch('https://finceiroapi.onrender.com/carteiras', { headers: { 'user-id': usuarioId } });
+            const resCarteiras = await fetch(`${API_BASE_URL}/carteiras`, { headers: { 'user-id': usuarioId } });
             setMinhasCarteiras(await resCarteiras.json());
 
             // Atualizar resumo também
@@ -229,7 +233,38 @@ function Dashboard({usuarioId}) {
         }catch(erro) {
             console.error(erro);
         }
-    }
+    };
+
+    const criarCarteira = async (novaCarteira) => {
+        try {
+            const resposta = await fetch(`${API_BASE_URL}/carteiras`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'user-id': usuarioId
+                },
+                body: JSON.stringify(novaCarteira)
+            });
+
+            if (!resposta.ok) {
+                const dadosErro = await resposta.json().catch(() => ({}));
+                throw new Error(dadosErro.erro || 'Erro ao criar carteira');
+            }
+
+            const carteiraCriada = await resposta.json();
+            setMinhasCarteiras((listaAtual) => [...listaAtual, carteiraCriada]);
+
+            // Se teve saldo inicial adicionado, atualiza o resumo
+            if (novaCarteira.saldo_inicial > 0) {
+                setFiltros(filtrosAtuais => ({ ...filtrosAtuais }));
+            }
+
+            return carteiraCriada;
+        } catch (erro) {
+            console.error("Erro ao criar carteira:", erro);
+            throw erro;
+        }
+    };
 
     const abrirModalPagamento = (conta) => {
         setContaParaPagar(conta);
@@ -237,7 +272,7 @@ function Dashboard({usuarioId}) {
 
     const efetuarPagamento = async (dados) => {
         try {
-            const resposta = await fetch('https://finceiroapi.onrender.com/contas/pagar', {
+            const resposta = await fetch(`${API_BASE_URL}/contas/pagar`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -248,18 +283,12 @@ function Dashboard({usuarioId}) {
 
             if (!resposta.ok) throw new Error('Erro ao processar pagamento');
 
-            const resContas = await fetch('https://finceiroapi.onrender.com/contas', { headers: { 'user-id': usuarioId } });
+            const resContas = await fetch(`${API_BASE_URL}/contas`, { headers: { 'user-id': usuarioId } });
             const dadosContas = await resContas.json();
-
-            const contasTraduzidas = dadosContas.map(item => ({
-                ...item,
-                numero_boleto: item.referencia,
-                emissao: item.data_emissao ? item.data_emissao.split('T')[0] : '',
-                vencimento: item.data_vencimento ? item.data_vencimento.split('T')[0] : ''
-            }));
+            const contasTraduzidas = dadosContas.map(traduzirConta);
             setListaContas(contasTraduzidas);
 
-            const resCarteiras = await fetch('https://finceiroapi.onrender.com/carteiras', { headers: { 'user-id': usuarioId } });
+            const resCarteiras = await fetch(`${API_BASE_URL}/carteiras`, { headers: { 'user-id': usuarioId } });
             setMinhasCarteiras(await resCarteiras.json());
 
         } catch (erro) {
@@ -271,7 +300,7 @@ function Dashboard({usuarioId}) {
         if (!window.confirm("Deseja desfazer este pagamento?")) return;
 
         try {
-            const resposta = await fetch('https://finceiroapi.onrender.com/contas/estornar', {
+            const resposta = await fetch(`${API_BASE_URL}/contas/estornar`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -281,18 +310,12 @@ function Dashboard({usuarioId}) {
             });
 
             if (resposta.ok) {
-                const resContas = await fetch('https://finceiroapi.onrender.com/contas', { headers: { 'user-id': usuarioId } });
+                const resContas = await fetch(`${API_BASE_URL}/contas`, { headers: { 'user-id': usuarioId } });
                 const dadosContas = await resContas.json();
-
-                const contasTraduzidas = dadosContas.map(item => ({
-                    ...item,
-                    numero_boleto: item.referencia,
-                    emissao: item.data_emissao ? item.data_emissao.split('T')[0] : '',
-                    vencimento: item.data_vencimento ? item.data_vencimento.split('T')[0] : ''
-                }));
+                const contasTraduzidas = dadosContas.map(traduzirConta);
                 setListaContas(contasTraduzidas);
 
-                const resCarteiras = await fetch('https://finceiroapi.onrender.com/carteiras', { headers: { 'user-id': usuarioId } });
+                const resCarteiras = await fetch(`${API_BASE_URL}/carteiras`, { headers: { 'user-id': usuarioId } });
                 setMinhasCarteiras(await resCarteiras.json());
 
                 alert("Estorno realizado!");
@@ -305,23 +328,48 @@ function Dashboard({usuarioId}) {
     };
 
     const contasFiltradasParaExibir = listaContas.filter(conta => {
-        const dataConta = new Date(conta.vencimento);
-        const dataInicio = new Date(filtros.inicio);
-        const dataFim = new Date(filtros.fim);
+        // REGRA DE DATAS:
+        // - A conta a pagar (pendente/parcial) fica atrelada ao mês de CADASTRO (emissao).
+        //   Mesmo que o vencimento seja no mês seguinte, ela continua no mês de cadastro até ser quitada.
+        // - Quando a conta for PAGA, ela é registrada e exibida no mês em que foi PAGA (data_pagamento).
+        const dataReferencia = conta.status === 'PAGO'
+            ? (conta.data_pagamento || conta.emissao || conta.vencimento)
+            : (conta.emissao || conta.vencimento);
 
-        const bateData = dataConta >= dataInicio && dataConta <= dataFim;
+        const bateData = (!filtros.inicio || dataReferencia >= filtros.inicio) &&
+                         (!filtros.fim || dataReferencia <= filtros.fim);
+
         const bateCategoria = filtros.categoria === '' || String(conta.categoria_id) === String(filtros.categoria);
-        const buscaMinusculo = filtros.texto.toLowerCase();
-        const bateBusca = conta.nome.toLowerCase().includes(buscaMinusculo) ||
-            conta.descricao.toLowerCase().includes(buscaMinusculo);
+
+        const buscaMinusculo = (filtros.texto || '').trim().toLowerCase();
+        const bateBusca = !buscaMinusculo ||
+            (conta.nome && conta.nome.toLowerCase().includes(buscaMinusculo)) ||
+            (conta.descricao && conta.descricao.toLowerCase().includes(buscaMinusculo)) ||
+            (conta.numero_boleto && String(conta.numero_boleto).toLowerCase().includes(buscaMinusculo)) ||
+            (conta.referencia && String(conta.referencia).toLowerCase().includes(buscaMinusculo)) ||
+            (conta.valor && String(conta.valor).toLowerCase().includes(buscaMinusculo)) ||
+            (conta.valor_original && String(conta.valor_original).toLowerCase().includes(buscaMinusculo)) ||
+            (conta.id && String(conta.id) === buscaMinusculo);
 
         return bateData && bateCategoria && bateBusca;
     });
 
+    if (telaAtual === 'relatorio') {
+        return (
+            <RelatorioImpressao
+                usuarioId={usuarioId}
+                anoInicial={filtros.ano || anoAtualPadrao}
+                mesInicial={filtros.mes || mesAtualPadrao}
+                contas={listaContas}
+                carteiras={minhasCarteiras}
+                categorias={listaCategorias}
+                aoVoltar={() => setTelaAtual('dashboard')}
+            />
+        );
+    }
+
     return (
-        <div style={{ padding: '20px', backgroundColor: '#121212', minHeight: '100vh' }}>
-
-
+        <div style={{ padding: '20px 24px 60px 24px', backgroundColor: 'transparent', minHeight: '100vh' }}>
 
             <BalanceCard
                 despesas={totalDividas}
@@ -330,12 +378,11 @@ function Dashboard({usuarioId}) {
                 aoClicarCarteiras={() => setModalCarteirasAberto(true)}
             />
 
-            {/* Passamos a lista vazia. O Select vai ficar vazio por enquanto. */}
-            {/* 1. BARRA DE FILTROS */}
-            {/* Passamos a função 'setFiltros' para atualizar o estado quando clicar em filtrar */}
+            {/* 1. BARRA DE FILTROS COM BOTÃO DE RELATÓRIO INTEGRADO */}
             <BarraFiltros
                 opcoesCategorias={listaCategorias}
-                aoClicarEmFiltrar={(novosDados) => setFiltros(novosDados)}
+                aoClicarEmFiltrar={(novosDados) => setFiltros(prev => ({ ...prev, ...novosDados }))}
+                aoAbrirRelatorio={() => setTelaAtual('relatorio')}
             />
 
             {/* 2. RESUMO DOS FILTROS */}
@@ -380,6 +427,7 @@ function Dashboard({usuarioId}) {
             {modalCarteirasAberto && (
                 <ModalCarteiras
                     carteiras={minhasCarteiras}
+                    aoCriarCarteira={criarCarteira}
                     aoFechar={() => setModalCarteirasAberto(false)}
                 />
             )}

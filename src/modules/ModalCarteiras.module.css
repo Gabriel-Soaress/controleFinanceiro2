@@ -4,100 +4,272 @@
     left: 0;
     width: 100vw;
     height: 100vh;
-    background-color: rgba(0, 0, 0, 0.85);
-    backdrop-filter: blur(3px);
+    background-color: rgba(11, 15, 25, 0.85);
+    backdrop-filter: blur(8px);
     z-index: 1000;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
-/* Caixa Pequena */
 .modalBox {
-    background-color: #1a1a1a;
-    padding: 2rem;
-    border-radius: 12px;
+    background: #111827;
+    padding: 2.2rem;
+    border-radius: 20px;
     width: 95%;
-    max-width: 400px;
+    max-width: 440px;
     position: relative;
-    border: 1px solid #333;
-    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.05);
 }
 
 .titulo {
-    color: white;
+    color: #f8fafc;
     margin-top: 0;
     margin-bottom: 1.5rem;
     text-align: center;
-    font-weight: 400;
-    font-size: 1.2rem;
+    font-weight: 700;
+    font-size: 1.25rem;
+    letter-spacing: 0.5px;
     text-transform: uppercase;
 }
 
 .botaoFechar {
     position: absolute;
-    top: 15px;
+    top: 18px;
     right: 20px;
     background: none;
     border: none;
-    color: #666;
-    font-size: 1.5rem;
+    color: #64748b;
+    font-size: 1.4rem;
     cursor: pointer;
+    transition: color 0.2s;
 }
-.botaoFechar:hover { color: white; }
+
+.botaoFechar:hover {
+    color: #f8fafc;
+}
 
 /* --- ESTILOS DA LISTA --- */
 .listaCarteiras {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 10px;
+    max-height: 260px;
+    overflow-y: auto;
+    padding-right: 4px;
 }
 
 .itemCarteira {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: #2b2b2b;
-    padding: 15px;
-    border-radius: 8px;
-    border: 1px solid #333;
-    transition: background-color 0.2s;
+    background-color: #1e293b;
+    padding: 14px 16px;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    transition: all 0.2s ease;
 }
 
 .itemCarteira:hover {
-    background-color: #333333;
+    background-color: #243248;
+    border-color: rgba(255, 255, 255, 0.12);
+    transform: translateY(-1px);
 }
 
 .nomeCarteira {
-    color: #ffffff;
+    color: #f8fafc;
     display: flex;
     align-items: center;
     gap: 10px;
-    font-size: 1rem;
+    font-size: 0.95rem;
+    font-weight: 600;
 }
 
 .iconeCarteira {
-    color: #888888;
-    font-size: 1.1rem;
+    color: #94a3b8;
+    font-size: 1.05rem;
 }
 
 .valorCarteira {
-    color: #009e2a;
-    font-weight: bold;
-    font-size: 1.1rem;
+    color: #10b981;
+    font-weight: 700;
+    font-size: 1.05rem;
 }
 
 .totalCarteiras {
-    margin-top: 25px;
+    margin-top: 18px;
     text-align: center;
-    color: #888888;
-    border-top: 1px solid #333;
-    padding-top: 15px;
+    color: #94a3b8;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    padding-top: 14px;
     font-size: 0.9rem;
 }
 
 .totalCarteiras b {
-    color: #ffffff;
-    font-size: 1rem;
-    margin-left: 5px;
+    color: #f8fafc;
+    font-size: 1.05rem;
+    margin-left: 6px;
 }
+
+/* --- BOTÃO NOVA CARTEIRA --- */
+.btnNovaCarteira {
+    width: 100%;
+    margin-top: 14px;
+    padding: 11px;
+    background-color: rgba(16, 185, 129, 0.08);
+    color: #10b981;
+    border: 1px dashed rgba(16, 185, 129, 0.4);
+    border-radius: 10px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+}
+
+.btnNovaCarteira:hover {
+    background-color: rgba(16, 185, 129, 0.16);
+    border-color: #10b981;
+    transform: translateY(-1px);
+}
+
+/* --- FORMULÁRIO DE NOVA CARTEIRA --- */
+.formNovaCarteira {
+    background-color: #1e293b;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 16px;
+    margin-top: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.formTitulo {
+    color: #f8fafc;
+    font-size: 0.95rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+.grupoInput {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.labelInput {
+    color: #94a3b8;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.inputTexto {
+    background-color: #0f172a;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 9px 12px;
+    color: #f8fafc;
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.inputTexto:focus {
+    border-color: #10b981;
+    box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+}
+
+/* Cores pré-definidas */
+.containerCores {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.circuloCor {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: transform 0.15s, border-color 0.15s;
+}
+
+.circuloCor:hover {
+    transform: scale(1.15);
+}
+
+.circuloCorSelecionada {
+    border-color: #ffffff !important;
+    transform: scale(1.15);
+    box-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
+}
+
+.inputColorCustom {
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    background: transparent;
+}
+
+/* Ações do formulário */
+.acoesForm {
+    display: flex;
+    gap: 10px;
+    margin-top: 6px;
+}
+
+.btnSalvarCarteira {
+    flex: 1;
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #ffffff;
+    border: none;
+    padding: 10px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.35);
+    transition: all 0.2s ease;
+}
+
+.btnSalvarCarteira:hover:not(:disabled) {
+    background: linear-gradient(135deg, #059669, #047857);
+    transform: translateY(-1px);
+}
+
+.btnSalvarCarteira:disabled {
+    background: #334155;
+    cursor: not-allowed;
+    color: #64748b;
+    box-shadow: none;
+}
+
+.btnCancelarForm {
+    flex: 1;
+    background-color: #334155;
+    color: #cbd5e1;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 10px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btnCancelarForm:hover {
+    background-color: #475569;
+    color: #ffffff;
+}

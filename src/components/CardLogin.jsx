@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import styles from '../modules/CardLogin.module.css';
+import { API_BASE_URL } from '../services/api';
 
 function CardLogin({ aoFazerLogin }) { // Recebemos a função do pai
     const [email, setEmail] = useState('');
@@ -13,7 +14,7 @@ function CardLogin({ aoFazerLogin }) { // Recebemos a função do pai
         setErro(''); // Limpa erros antigos
 
         try {
-            const resposta = await fetch('https://finceiroapi.onrender.com/login', {
+            const resposta = await fetch(`${API_BASE_URL}/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email, senha })

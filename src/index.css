@@ -1,24 +1,358 @@
-*{
-    box-sizing: border-box;
+:root {
+    --bg-app: #0b0f19;
+    --bg-surface: #111827;
+    --bg-surface-elevated: #1e293b;
+    --border-color: rgba(255, 255, 255, 0.08);
+    --border-hover: rgba(255, 255, 255, 0.16);
+    --text-primary: #f8fafc;
+    --text-secondary: #94a3b8;
+    --text-muted: #64748b;
+    --color-primary: #3b82f6;
+    --color-success: #10b981;
+    --color-danger: #ef4444;
+    --color-warning: #f59e0b;
 }
 
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
 
 body {
     margin: 0;
-    background-color: #1a1a1a;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-
+    background-color: var(--bg-app);
+    color: var(--text-primary);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-
-
     min-height: 100vh;
 }
 
+/* Scrollbar customizado elegante */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #0f172a;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #334155;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #475569;
+}
 
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+    font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
 }
+
+/* ========================================================
+   MODO BRANCO / CLARO (LIGHT MODE)
+   ======================================================== */
+body.modo-claro {
+    --bg-app: #f1f5f9;
+    --bg-surface: #ffffff;
+    --bg-surface-elevated: #f8fafc;
+    --border-color: rgba(0, 0, 0, 0.08);
+    --border-hover: rgba(0, 0, 0, 0.16);
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
+    --text-muted: #64748b;
+    background-color: #f1f5f9 !important;
+    color: #0f172a !important;
+}
+
+body.modo-claro ::-webkit-scrollbar-track {
+    background: #e2e8f0;
+}
+
+body.modo-claro ::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+}
+
+body.modo-claro ::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+/* HEADER NO MODO CLARO */
+body.modo-claro [class*="Header"] {
+    background: rgba(255, 255, 255, 0.9) !important;
+    border-bottom-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+body.modo-claro [class*="textoLogo"] {
+    color: #0f172a !important;
+}
+
+body.modo-claro [class*="botaoTema"] {
+    background: rgba(0, 0, 0, 0.05) !important;
+    color: #334155 !important;
+    border-color: rgba(0, 0, 0, 0.12) !important;
+}
+
+body.modo-claro [class*="botaoTema"]:hover {
+    background: rgba(0, 0, 0, 0.09) !important;
+    color: #0f172a !important;
+}
+
+/* BALANÇO ATUAL (DESPESAS E CAIXA) */
+body.modo-claro [class*="cardContainer"] {
+    background: linear-gradient(145deg, #ffffff, #f8fafc) !important;
+    border-color: rgba(0, 0, 0, 0.08) !important;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.04) !important;
+}
+
+body.modo-claro [class*="label"] {
+    color: #64748b !important;
+}
+
+body.modo-claro [class*="valorDespesa"],
+body.modo-claro [class*="valorCaixa"] {
+    color: #0f172a !important;
+}
+
+body.modo-claro [class*="divisor"] {
+    background: linear-gradient(180deg, transparent, rgba(0, 0, 0, 0.1), transparent) !important;
+}
+
+body.modo-claro [class*="btnWallets"] {
+    background: rgba(0, 0, 0, 0.05) !important;
+    border-color: rgba(0, 0, 0, 0.1) !important;
+    color: #475569 !important;
+}
+
+body.modo-claro [class*="btnWallets"]:hover {
+    background: rgba(0, 0, 0, 0.1) !important;
+    color: #0f172a !important;
+}
+
+/* BARRA DE FILTROS */
+body.modo-claro [class*="containerBarraFiltros"] {
+    background: #ffffff !important;
+    border-color: rgba(0, 0, 0, 0.08) !important;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.06), 0 0 0 1px rgba(0, 0, 0, 0.04) !important;
+}
+
+body.modo-claro [class*="labelAno"] {
+    color: #64748b !important;
+}
+
+body.modo-claro [class*="wrapperAno"],
+body.modo-claro [class*="wrapperBusca"],
+body.modo-claro [class*="campoSelecao"] {
+    background-color: #f8fafc !important;
+    border-color: rgba(0, 0, 0, 0.12) !important;
+    color: #0f172a !important;
+}
+
+body.modo-claro [class*="campoAno"],
+body.modo-claro [class*="campoBusca"] {
+    color: #0f172a !important;
+}
+
+body.modo-claro [class*="campoAno"] option,
+body.modo-claro [class*="campoSelecao"] option {
+    background-color: #ffffff !important;
+    color: #0f172a !important;
+}
+
+body.modo-claro [class*="campoBusca"]::placeholder {
+    color: #94a3b8 !important;
+}
+
+body.modo-claro [class*="divisorVertical"] {
+    background-color: rgba(0, 0, 0, 0.1) !important;
+}
+
+body.modo-claro [class*="botaoMes"] {
+    background-color: #f1f5f9 !important;
+    color: #475569 !important;
+    border-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+body.modo-claro [class*="botaoMes"]:hover {
+    background-color: #e2e8f0 !important;
+    color: #0f172a !important;
+}
+
+body.modo-claro [class*="botaoMesAtivo"] {
+    background: linear-gradient(135deg, #10b981, #059669) !important;
+    color: #ffffff !important;
+    border-color: #10b981 !important;
+}
+
+/* RESUMO DOS FILTROS */
+body.modo-claro [class*="containerResumo"] {
+    background: #ffffff !important;
+    border-color: rgba(0, 0, 0, 0.08) !important;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.06), 0 0 0 1px rgba(0, 0, 0, 0.04) !important;
+}
+
+body.modo-claro [class*="titulo"] {
+    color: #64748b !important;
+}
+
+body.modo-claro [class*="textoNeutro"] {
+    color: #0f172a !important;
+}
+
+/* TABELA DE CONTAS */
+body.modo-claro [class*="aba"] {
+    background-color: #e2e8f0 !important;
+    color: #475569 !important;
+    border-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+body.modo-claro [class*="abaAtivaBase"] {
+    background-color: #ffffff !important;
+    border-color: rgba(0, 0, 0, 0.08) !important;
+    border-bottom-color: #ffffff !important;
+}
+
+body.modo-claro [class*="abaVermelha"] {
+    color: #dc2626 !important;
+}
+
+body.modo-claro [class*="abaVerde"] {
+    color: #16a34a !important;
+}
+
+body.modo-claro [class*="grupoOrdenacao"] {
+    background: #ffffff !important;
+    border-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+body.modo-claro [class*="btnOrdem"] {
+    color: #64748b !important;
+}
+
+body.modo-claro [class*="btnOrdemAtivo"] {
+    background: #f1f5f9 !important;
+    color: #0284c7 !important;
+    border-color: rgba(2, 132, 199, 0.25) !important;
+}
+
+body.modo-claro [class*="corpoTabela"] {
+    background-color: #ffffff !important;
+    border-color: rgba(0, 0, 0, 0.08) !important;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.06), 0 0 0 1px rgba(0, 0, 0, 0.04) !important;
+}
+
+body.modo-claro [class*="cabecalhoTabela"] {
+    border-bottom-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+body.modo-claro [class*="tituloColuna"] {
+    color: #64748b !important;
+}
+
+body.modo-claro [class*="linhaContainer"] {
+    background-color: #f8fafc !important;
+    border-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+body.modo-claro [class*="linhaContainer"]:hover {
+    background-color: #f1f5f9 !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05) !important;
+}
+
+body.modo-claro [class*="inputLinha"] {
+    background-color: #ffffff !important;
+    color: #0f172a !important;
+    border-color: rgba(0, 0, 0, 0.12) !important;
+}
+
+body.modo-claro [class*="inputLinha"] option {
+    background-color: #ffffff !important;
+    color: #0f172a !important;
+}
+
+body.modo-claro [class*="inputLeitura"] {
+    background-color: transparent !important;
+    color: #0f172a !important;
+    border-color: transparent !important;
+}
+
+body.modo-claro [class*="dataVencTexto"],
+body.modo-claro [class*="valorTotalParcial"] {
+    color: #0f172a !important;
+}
+
+body.modo-claro [class*="mensagemVazio"] {
+    color: #64748b !important;
+}
+
+/* MODAIS NO MODO CLARO */
+body.modo-claro [class*="modalBox"] {
+    background: #ffffff !important;
+    border-color: rgba(0, 0, 0, 0.1) !important;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(0, 0, 0, 0.05) !important;
+}
+
+body.modo-claro [class*="modalBox"] [class*="titulo"] {
+    color: #0f172a !important;
+}
+
+body.modo-claro [class*="grupoInput"] label,
+body.modo-claro [class*="labelInput"] {
+    color: #64748b !important;
+}
+
+body.modo-claro [class*="inputModal"],
+body.modo-claro [class*="inputTexto"] {
+    background-color: #f8fafc !important;
+    color: #0f172a !important;
+    border-color: rgba(0, 0, 0, 0.15) !important;
+}
+
+body.modo-claro [class*="inputModal"] option {
+    background-color: #ffffff !important;
+    color: #0f172a !important;
+}
+
+body.modo-claro [class*="itemCarteira"] {
+    background-color: #f8fafc !important;
+    border-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+body.modo-claro [class*="itemCarteira"]:hover {
+    background-color: #f1f5f9 !important;
+}
+
+body.modo-claro [class*="nomeCarteira"],
+body.modo-claro [class*="totalCarteiras"] b {
+    color: #0f172a !important;
+}
+
+body.modo-claro [class*="totalCarteiras"] {
+    border-top-color: rgba(0, 0, 0, 0.08) !important;
+    color: #64748b !important;
+}
+
+body.modo-claro [class*="formNovaCarteira"] {
+    background-color: #f8fafc !important;
+    border-color: rgba(0, 0, 0, 0.1) !important;
+}
+
+body.modo-claro [class*="formTitulo"] {
+    color: #0f172a !important;
+}
+
+body.modo-claro [class*="btnCancelarForm"] {
+    background-color: #e2e8f0 !important;
+    color: #475569 !important;
+    border-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+body.modo-claro [class*="btnCancelarForm"]:hover {
+    background-color: #cbd5e1 !important;
+    color: #0f172a !important;
+}
+
+

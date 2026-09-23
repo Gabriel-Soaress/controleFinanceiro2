@@ -1,26 +1,111 @@
 .Header {
     width: 100%;
-
-    padding: 8px 20px;
+    padding: 12px 28px;
     display: flex;
     justify-content: space-between;
+    align-items: center;
+    background: rgba(15, 23, 42, 0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    box-sizing: border-box;
+    transition: background 0.3s ease, border-color 0.3s ease;
 }
 
+/* ÁREA DA LOGO / NOME */
+.logoArea {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    user-select: none;
+}
 
+.iconeLogo {
+    font-size: 1.3rem;
+    color: #10b981;
+    background: rgba(16, 185, 129, 0.15);
+    padding: 8px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
 
-.botaoSair {
-    background-color: #009e2a;
-    color: white;
-    border: none;
-    width: 5%; /* Botão também precisa encher a largura se quiser igual aos inputs */
-    padding: 0.8rem;
-    border-radius: 50px;
-    font-size: 1rem;
-    font-weight: bold;
+.textoLogo {
+    font-size: 1.15rem;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    color: #f8fafc;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.destaqueLogo {
+    color: #10b981;
+}
+
+/* ÁREA DE AÇÕES À DIREITA */
+.acoesArea {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+/* BOTÃO DE TEMA (CLARO / ESCURO) */
+.botaoTema {
+    background: rgba(255, 255, 255, 0.06);
+    color: #cbd5e1;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
     cursor: pointer;
-    transition: background-color 0.2s;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    user-select: none;
+}
+
+.botaoTema:hover {
+    background: rgba(255, 255, 255, 0.12);
+    color: #ffffff;
+    border-color: rgba(255, 255, 255, 0.25);
+    transform: translateY(-1px);
+}
+
+.iconeSol {
+    color: #facc15;
+}
+
+.iconeLua {
+    color: #38bdf8;
+}
+
+/* BOTÃO SAIR */
+.botaoSair {
+    background: rgba(239, 68, 68, 0.12);
+    color: #f87171;
+    border: 1px solid rgba(239, 68, 68, 0.25);
+    padding: 8px 18px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
 }
 
 .botaoSair:hover {
-    background-color: #00b330;
+    background: #ef4444;
+    color: #ffffff;
+    border-color: #ef4444;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.35);
+    transform: translateY(-1px);
 }

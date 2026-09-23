@@ -1,19 +1,51 @@
-import styles from "../modules/Header.module.css"
-// import logo from "../assets/images/logo.png"
+import React from 'react';
+import styles from "../modules/Header.module.css";
 
-// 1. Recebemos a prop 'aoSair' aqui nos argumentos
-function Header({ aoSair }) {
+function Header({ aoSair, tema = 'escuro', aoAlternarTema }) {
+    const ehModoClaro = tema === 'claro';
+
     return (
-        <div className={styles.Header}>
+        <header className={styles.Header}>
+            {/* IDENTIDADE DO SISTEMA */}
+            <div className={styles.logoArea}>
+                <div className={styles.iconeLogo}>
+                    <i className="fa-solid fa-coins"></i>
+                </div>
+                <div className={styles.textoLogo}>
+                    Finança <span className={styles.destaqueLogo}>DFashion</span>
+                </div>
+            </div>
 
-            {/*<img src={logo} alt="Logo Sofit" />*/}
+            {/* AÇÕES À DIREITA */}
+            <div className={styles.acoesArea}>
+                {/* BOTÃO ALTERNADOR DE MODO BRANCO / ESCURO */}
+                <button
+                    type="button"
+                    className={styles.botaoTema}
+                    onClick={aoAlternarTema}
+                    title={ehModoClaro ? "Alternar para Modo Escuro" : "Alternar para Modo Branco (Claro)"}
+                >
+                    {ehModoClaro ? (
+                        <>
+                            <i className={`fa-solid fa-moon ${styles.iconeLua}`}></i>
+                            Modo Escuro
+                        </>
+                    ) : (
+                        <>
+                            <i className={`fa-solid fa-sun ${styles.iconeSol}`}></i>
+                            Modo Branco
+                        </>
+                    )}
+                </button>
 
-            {/* 2. No clique, chamamos a função que veio do pai */}
-            <button className={styles.botaoSair} onClick={aoSair}>
-                Sair
-            </button>
-        </div>
-    )
+                {/* BOTÃO SAIR */}
+                <button className={styles.botaoSair} onClick={aoSair} title="Encerrar sessão">
+                    <i className="fa-solid fa-arrow-right-from-bracket"></i>
+                    Sair
+                </button>
+            </div>
+        </header>
+    );
 }
 
 export default Header;
