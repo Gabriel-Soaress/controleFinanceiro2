@@ -490,6 +490,7 @@ function Dashboard({ usuarioId, tema = 'escuro' }) {
                 <ModalPagamento
                     conta={contaParaPagar}
                     carteiras={minhasCarteiras}
+                    contatos={listaContatos}
                     aoFechar={() => setContaParaPagar(null)}
                     aoConfirmar={efetuarPagamento}
                 />

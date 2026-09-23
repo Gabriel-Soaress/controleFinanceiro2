@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import styles from '../../modules/ModalPagamentos.module.css';
 import ModalMensagem from './ModalMensagem';
 
-// 1. Adicionada a prop 'aoConfirmar' aqui no topo
-function ModalPagamento({ conta, aoFechar, carteiras = [], aoConfirmar }) {
+// 1. Adicionada a prop 'aoConfirmar' e 'contatos' aqui no topo
+function ModalPagamento({ conta, aoFechar, carteiras = [], contatos = [], aoConfirmar }) {
 
     // Convertendo para ter certeza que é número
     const valorOriginal = parseFloat(conta.valor);
@@ -18,6 +18,33 @@ function ModalPagamento({ conta, aoFechar, carteiras = [], aoConfirmar }) {
     const [bloquearBotao, setBloquearBotao] = useState(false);
     const [classeMensagem, setClasseMensagem] = useState('');
     const [modalAlertaAberto, setModalAlertaAberto] = useState(false);
+    const [pixCopiado, setPixCopiado] = useState(false);
+
+    // Busca se a conta pertence a um contato registrado com chave PIX
+    const contatoRegistrado = useMemo(() => {
+        if (!conta || !conta.nome || !contatos || contatos.length === 0) return null;
+        const nomeConta = (conta.nome || '').trim().toUpperCase();
+
+        // 1. Correspondência exata
+        let match = contatos.find(c => (c.nome || '').trim().toUpperCase() === nomeConta);
+        if (match && match.chave_pix) return match;
+
+        // 2. Correspondência parcial inteligente
+        match = contatos.find(c => {
+            const cNome = (c.nome || '').trim().toUpperCase();
+            return cNome && (nomeConta.includes(cNome) || cNome.includes(nomeConta));
+        });
+        if (match && match.chave_pix) return match;
+
+        return null;
+    }, [conta, contatos]);
+
+    const copiarPix = () => {
+        if (!contatoRegistrado?.chave_pix) return;
+        navigator.clipboard.writeText(contatoRegistrado.chave_pix);
+        setPixCopiado(true);
+        setTimeout(() => setPixCopiado(false), 2000);
+    };
 
     useEffect(() => {
         const valorInserido = parseFloat(valorPago);
@@ -87,6 +114,41 @@ function ModalPagamento({ conta, aoFechar, carteiras = [], aoConfirmar }) {
                 <h2 className={styles.titulo}>
                     PAGAR: {conta.nome}
                 </h2>
+
+                {contatoRegistrado && contatoRegistrado.chave_pix && (
+                    <div className={styles.cardPix}>
+                        <div className={styles.cardPixHeader}>
+                            <div className={styles.cardPixTitulo}>
+                                <i className="fa-brands fa-pix"></i>
+                                <span>Chave PIX Cadastrada</span>
+                            </div>
+                            <span className={`${styles.badgeTipoContato} ${styles['badge_' + (contatoRegistrado.tipo || 'fornecedor')]}`}>
+                                {contatoRegistrado.tipo === 'funcionario' ? 'Funcionário' : contatoRegistrado.tipo === 'terceirizado' ? 'Terceirizado' : 'Fornecedor'}
+                            </span>
+                        </div>
+                        <div className={styles.cardPixCorpo}>
+                            <span className={styles.chavePixTexto} title={contatoRegistrado.chave_pix}>
+                                {contatoRegistrado.chave_pix}
+                            </span>
+                            <button
+                                type="button"
+                                className={`${styles.btnCopiarPixModal} ${pixCopiado ? styles.btnCopiadoModal : ''}`}
+                                onClick={copiarPix}
+                                title="Copiar Chave PIX"
+                            >
+                                {pixCopiado ? (
+                                    <>
+                                        <i className="fa-solid fa-check"></i> Copiado!
+                                    </>
+                                ) : (
+                                    <>
+                                        <i className="fa-solid fa-copy"></i> Copiar PIX
+                                    </>
+                                )}
+                            </button>
+                        </div>
+                    </div>
+                )}
 
                 <div className={styles.linhaFormulario}>
                     <div className={styles.grupoInput}>
