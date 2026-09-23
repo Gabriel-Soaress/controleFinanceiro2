@@ -107,7 +107,7 @@ function Contatos({ usuarioId, aoVoltar, tema = 'escuro' }) {
             if (contatoEdicao) {
                 // Atualização
                 const atualizado = await apiPut(`/contatos/${contatoEdicao.id}`, {
-                    nome: formNome.trim(),
+                    nome: formNome.trim().toUpperCase(),
                     chave_pix: formPix.trim(),
                     tipo: formTipo
                 }, usuarioId);
@@ -115,7 +115,7 @@ function Contatos({ usuarioId, aoVoltar, tema = 'escuro' }) {
             } else {
                 // Criação
                 const novo = await apiPost('/contatos', {
-                    nome: formNome.trim(),
+                    nome: formNome.trim().toUpperCase(),
                     chave_pix: formPix.trim(),
                     tipo: formTipo
                 }, usuarioId);
@@ -430,11 +430,12 @@ function Contatos({ usuarioId, aoVoltar, tema = 'escuro' }) {
                                 <input
                                     type="text"
                                     className={styles.formInput}
-                                    placeholder="Ex: TASS, Alvez, Maria da Silva..."
+                                    style={{ textTransform: 'uppercase' }}
+                                    placeholder="Ex: TASS, ALVEZ, MARIA DA SILVA..."
                                     required
                                     autoFocus
                                     value={formNome}
-                                    onChange={(e) => setFormNome(e.target.value)}
+                                    onChange={(e) => setFormNome(e.target.value.toUpperCase())}
                                 />
                             </div>
 

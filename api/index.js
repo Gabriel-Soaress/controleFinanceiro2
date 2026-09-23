@@ -431,7 +431,7 @@ router.post('/contatos', async (req, res) => {
             `INSERT INTO contatos (usuario_id, nome, chave_pix, tipo)
              VALUES ($1, $2, $3, $4)
              RETURNING *`,
-            [usuario_id, nome.trim(), chave_pix ? chave_pix.trim() : '', tipoValido]
+            [usuario_id, nome.trim().toUpperCase(), chave_pix ? chave_pix.trim() : '', tipoValido]
         );
         res.status(201).json(resultado.rows[0]);
     } catch (erro) {
@@ -458,7 +458,7 @@ router.put('/contatos/:id', async (req, res) => {
              SET nome = $1, chave_pix = $2, tipo = $3
              WHERE id = $4 AND usuario_id = $5
              RETURNING *`,
-            [nome.trim(), chave_pix ? chave_pix.trim() : '', tipoValido, id, usuario_id]
+            [nome.trim().toUpperCase(), chave_pix ? chave_pix.trim() : '', tipoValido, id, usuario_id]
         );
         if (resultado.rowCount === 0) {
             return res.status(404).json({ erro: 'Contato não encontrado' });
