@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import styles from '../modules/TabelaContas.module.css';
+import ModalMensagem from './modais/ModalMensagem';
 
 const PALETA_CORES = [
     { cor: '#38bdf8', bg: 'rgba(56, 189, 248, 0.15)', border: 'rgba(56, 189, 248, 0.35)' },
@@ -71,6 +72,7 @@ function calcularPrioridade(dataVencimento) {
 function TabelaContas({
     dados = [],
     categorias = [],
+    contatos = [],
     aoClicarPagar,
     aoSalvarNovaConta,
     aoSalvarEdicao,
@@ -80,6 +82,26 @@ function TabelaContas({
     const [abaAtiva, setAbaAtiva] = useState('a_pagar');
     const [ordemListagem, setOrdemListagem] = useState('prioridade'); // 'prioridade' | 'insercao'
     const [mostrandoFormulario, setMostrandoFormulario] = useState(false);
+
+    // Estado do Modal de Alerta
+    const [modalAlerta, setModalAlerta] = useState({
+        aberta: false,
+        titulo: '',
+        mensagem: '',
+        tipo: 'aviso'
+    });
+
+    const mostrarAviso = (titulo, mensagem) => {
+        setModalAlerta({
+            aberta: true,
+            titulo,
+            mensagem,
+            tipo: 'aviso'
+        });
+    };
+
+    // Estado do Autocomplete em Tempo Real
+    const [sugestoesAbertas, setSugestoesAbertas] = useState(false);
 
     const dataHoje = new Date().toISOString().split('T')[0];
 
@@ -92,6 +114,37 @@ function TabelaContas({
         emissao: dataHoje,
         vencimento: ''
     });
+
+    // Filtro de sugestões em tempo real (máx. 5 a 6 contatos)
+    const sugestoesContatos = useMemo(() => {
+        const texto = (novaContaTemp.nome || '').trim().toLowerCase();
+        if (!texto || texto.length < 1) return [];
+        return contatos
+            .filter(c => c.nome && c.nome.toLowerCase().includes(texto))
+            .slice(0, 6);
+    }, [contatos, novaContaTemp.nome]);
+
+    const selecionarSugestao = (contato) => {
+        // Pré-seleciona categoria inteligente de acordo com o tipo
+        let catId = novaContaTemp.categoria_id;
+        if (contato.tipo === 'fornecedor') {
+            const cat = categorias.find(c => c.nome.toLowerCase().includes('fornecedor'));
+            if (cat) catId = cat.id;
+        } else if (contato.tipo === 'funcionario') {
+            const cat = categorias.find(c => c.nome.toLowerCase().includes('funcionar'));
+            if (cat) catId = cat.id;
+        } else if (contato.tipo === 'terceirizado') {
+            const cat = categorias.find(c => c.nome.toLowerCase().includes('terceriz') || c.nome.toLowerCase().includes('terceiriz'));
+            if (cat) catId = cat.id;
+        }
+
+        setNovaContaTemp(prev => ({
+            ...prev,
+            nome: contato.nome,
+            categoria_id: catId || prev.categoria_id
+        }));
+        setSugestoesAbertas(false);
+    };
 
     const [editandoId, setEditandoId] = useState(null);
     const [dadosEdicao, setDadosEdicao] = useState({});
@@ -113,24 +166,25 @@ function TabelaContas({
             emissao: dataHoje,
             vencimento: ''
         });
+        setSugestoesAbertas(false);
         setMostrandoFormulario(true);
     };
 
     const confirmarNovaConta = () => {
         if (!novaContaTemp.nome || !novaContaTemp.nome.trim()) {
-            alert('Por favor, preencha o Nome da conta.');
+            mostrarAviso('Nome Obrigatório', 'Por favor, preencha o Nome da conta.');
             return;
         }
         if (!novaContaTemp.valor || isNaN(novaContaTemp.valor) || Number(novaContaTemp.valor) <= 0) {
-            alert('Por favor, informe um Valor válido maior que zero.');
+            mostrarAviso('Valor Inválido', 'Por favor, informe um Valor válido maior que zero.');
             return;
         }
         if (!novaContaTemp.emissao) {
-            alert('Por favor, informe a Data de Emissão.');
+            mostrarAviso('Data de Emissão Obrigatória', 'Por favor, informe a Data de Emissão.');
             return;
         }
         if (!novaContaTemp.vencimento) {
-            alert('Por favor, informe a Data de Vencimento.');
+            mostrarAviso('Data de Vencimento Obrigatória', 'Por favor, informe a Data de Vencimento.');
             return;
         }
 
@@ -145,6 +199,7 @@ function TabelaContas({
 
         aoSalvarNovaConta(dadosParaSalvar);
         setNovaContaTemp({ numero_boleto: '', categoria_id: '', nome: '', descricao: '', valor: '', emissao: dataHoje, vencimento: '' });
+        setSugestoesAbertas(false);
         setMostrandoFormulario(false);
     };
 
@@ -157,19 +212,19 @@ function TabelaContas({
 
     const confirmarEdicao = () => {
         if (!dadosEdicao.nome || !dadosEdicao.nome.trim()) {
-            alert('Por favor, preencha o Nome da conta.');
+            mostrarAviso('Nome Obrigatório', 'Por favor, preencha o Nome da conta.');
             return;
         }
         if (!dadosEdicao.valor || isNaN(dadosEdicao.valor) || Number(dadosEdicao.valor) <= 0) {
-            alert('Por favor, informe um Valor válido maior que zero.');
+            mostrarAviso('Valor Inválido', 'Por favor, informe um Valor válido maior que zero.');
             return;
         }
         if (!dadosEdicao.emissao) {
-            alert('Por favor, informe a Data de Emissão.');
+            mostrarAviso('Data de Emissão Obrigatória', 'Por favor, informe a Data de Emissão.');
             return;
         }
         if (!dadosEdicao.vencimento) {
-            alert('Por favor, informe a Data de Vencimento.');
+            mostrarAviso('Data de Vencimento Obrigatória', 'Por favor, informe a Data de Vencimento.');
             return;
         }
 
@@ -328,8 +383,48 @@ function TabelaContas({
                                 placeholder="Nome da conta *"
                                 required
                                 value={novaContaTemp.nome}
-                                onChange={(e) => mudarInputNovaConta('nome', e.target.value)}
+                                autoComplete="off"
+                                onChange={(e) => {
+                                    mudarInputNovaConta('nome', e.target.value);
+                                    setSugestoesAbertas(true);
+                                }}
+                                onFocus={() => {
+                                    if ((novaContaTemp.nome || '').trim()) setSugestoesAbertas(true);
+                                }}
+                                onBlur={() => {
+                                    // Aguarda para que o onMouseDown no item seja processado
+                                    setTimeout(() => setSugestoesAbertas(false), 200);
+                                }}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Escape') setSugestoesAbertas(false);
+                                }}
                             />
+                            {sugestoesAbertas && sugestoesContatos.length > 0 && (
+                                <div className={styles.dropdownSugestoes}>
+                                    <div className={styles.cabecalhoSugestoes}>
+                                        <i className="fa-solid fa-wand-magic-sparkles"></i> Sugestões de Contatos ({sugestoesContatos.length})
+                                    </div>
+                                    {sugestoesContatos.map(contato => (
+                                        <div
+                                            key={contato.id}
+                                            className={styles.itemSugestao}
+                                            onMouseDown={() => selecionarSugestao(contato)}
+                                        >
+                                            <div className={styles.itemSugestaoInfo}>
+                                                <span className={styles.itemSugestaoNome}>{contato.nome}</span>
+                                                {contato.chave_pix && (
+                                                    <span className={styles.itemSugestaoPix}>
+                                                        <i className="fa-solid fa-qrcode"></i> {contato.chave_pix}
+                                                    </span>
+                                                )}
+                                            </div>
+                                            <span className={`${styles.badgeSugestao} ${styles['badge_' + (contato.tipo || 'fornecedor')]}`}>
+                                                {contato.tipo === 'funcionario' ? 'Funcionário' : contato.tipo === 'terceirizado' ? 'Terceirizado' : 'Fornecedor'}
+                                            </span>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
                         </div>
                         <div className={styles.colunaDesc}>
                             <input
@@ -624,6 +719,15 @@ function TabelaContas({
                     )}
                 </div>
             </div>
+
+            {/* MODAL DE ALERTA PERSONALIZADO */}
+            <ModalMensagem
+                aberta={modalAlerta.aberta}
+                tipo={modalAlerta.tipo}
+                titulo={modalAlerta.titulo}
+                mensagem={modalAlerta.mensagem}
+                aoConfirmar={() => setModalAlerta(prev => ({ ...prev, aberta: false }))}
+            />
         </div>
     );
 }

@@ -27,6 +27,35 @@
     gap: 12px;
 }
 
+.grupoBotoesAcao {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.botaoContatos {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: linear-gradient(135deg, #4f46e5, #6366f1);
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    padding: 8px 16px;
+    border-radius: 9px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(79, 70, 229, 0.35);
+    transition: all 0.2s ease;
+}
+
+.botaoContatos:hover {
+    background: linear-gradient(135deg, #6366f1, #818cf8);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 18px rgba(79, 70, 229, 0.5);
+}
+
 .botaoRelatorio {
     display: inline-flex;
     align-items: center;

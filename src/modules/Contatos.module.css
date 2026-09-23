@@ -1,0 +1,828 @@
+.paginaContatos {
+    padding: 24px 32px 80px 32px;
+    max-width: 1400px;
+    margin: 0 auto;
+    animation: fadeIn 0.2s ease-out;
+}
+
+/* CABEÇALHO */
+.cabecalho {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 24px;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.infoArea {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.btnVoltar {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: transparent;
+    border: none;
+    color: #60a5fa;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 0;
+    margin-bottom: 4px;
+    transition: color 0.2s ease;
+}
+
+.btnVoltar:hover {
+    color: #93c5fd;
+    text-decoration: underline;
+}
+
+:global(body.modo-claro) .btnVoltar {
+    color: #2563eb;
+}
+
+:global(body.modo-claro) .btnVoltar:hover {
+    color: #1d4ed8;
+}
+
+.tituloPrincipal {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: #f8fafc;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+:global(body.modo-claro) .tituloPrincipal {
+    color: #0f172a;
+}
+
+.subtituloPrincipal {
+    font-size: 0.95rem;
+    color: #94a3b8;
+    margin: 0;
+}
+
+:global(body.modo-claro) .subtituloPrincipal {
+    color: #64748b;
+}
+
+.btnNovoContato {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    color: #ffffff;
+    border: none;
+    border-radius: 12px;
+    padding: 12px 22px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
+    transition: all 0.2s ease;
+}
+
+.btnNovoContato:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(37, 99, 235, 0.5);
+    background: linear-gradient(135deg, #60a5fa 0%, #2563eb 100%);
+}
+
+/* BARRA DE CONTROLES */
+.barraControles {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #161d2f;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    padding: 12px 18px;
+    margin-bottom: 24px;
+    gap: 16px;
+    flex-wrap: wrap;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+:global(body.modo-claro) .barraControles {
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 15px rgba(15, 23, 42, 0.05);
+}
+
+.tabsTipo {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.tabBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background-color: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #cbd5e1;
+    border-radius: 10px;
+    padding: 8px 14px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.tabBtn:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+}
+
+.tabAtiva {
+    background-color: #3b82f6 !important;
+    border-color: #3b82f6 !important;
+    color: #ffffff !important;
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.4);
+}
+
+:global(body.modo-claro) .tabBtn {
+    background-color: #f1f5f9;
+    border-color: #e2e8f0;
+    color: #475569;
+}
+
+:global(body.modo-claro) .tabBtn:hover {
+    background-color: #e2e8f0;
+    color: #0f172a;
+}
+
+:global(body.modo-claro) .tabAtiva {
+    background-color: #2563eb !important;
+    color: #ffffff !important;
+}
+
+.badgeContador {
+    background-color: rgba(0, 0, 0, 0.25);
+    padding: 2px 7px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+:global(body.modo-claro) .tabBtn:not(.tabAtiva) .badgeContador {
+    background-color: #e2e8f0;
+    color: #334155;
+}
+
+/* CAMPO DE BUSCA */
+.campoBusca {
+    position: relative;
+    display: flex;
+    align-items: center;
+    min-width: 280px;
+    flex: 1;
+    max-width: 450px;
+}
+
+.iconeBusca {
+    position: absolute;
+    left: 14px;
+    color: #64748b;
+    pointer-events: none;
+    font-size: 0.95rem;
+}
+
+.inputBusca {
+    width: 100%;
+    background-color: rgba(11, 15, 25, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 10px;
+    padding: 10px 38px 10px 40px;
+    color: #f8fafc;
+    font-size: 0.9rem;
+    outline: none;
+    transition: all 0.2s ease;
+}
+
+.inputBusca:focus {
+    border-color: #3b82f6;
+    background-color: rgba(11, 15, 25, 0.9);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+:global(body.modo-claro) .inputBusca {
+    background-color: #f8fafc;
+    border-color: #cbd5e1;
+    color: #0f172a;
+}
+
+:global(body.modo-claro) .inputBusca:focus {
+    background-color: #ffffff;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+.btnLimparBusca {
+    position: absolute;
+    right: 12px;
+    background: transparent;
+    border: none;
+    color: #94a3b8;
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+}
+
+.btnLimparBusca:hover {
+    color: #f8fafc;
+}
+
+:global(body.modo-claro) .btnLimparBusca:hover {
+    color: #0f172a;
+}
+
+/* TABELA DE CONTATOS */
+.tabelaContainer {
+    background-color: #161d2f;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
+}
+
+:global(body.modo-claro) .tabelaContainer {
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 20px rgba(15, 23, 42, 0.06);
+}
+
+.tabela {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+.tabela thead tr {
+    background-color: rgba(255, 255, 255, 0.03);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+:global(body.modo-claro) .tabela thead tr {
+    background-color: #f8fafc;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.tabela th {
+    padding: 14px 20px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #94a3b8;
+}
+
+:global(body.modo-claro) .tabela th {
+    color: #64748b;
+}
+
+.linhaTabela {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    transition: background-color 0.15s ease;
+}
+
+.linhaTabela:hover {
+    background-color: rgba(255, 255, 255, 0.03);
+}
+
+:global(body.modo-claro) .linhaTabela {
+    border-bottom: 1px solid #f1f5f9;
+}
+
+:global(body.modo-claro) .linhaTabela:hover {
+    background-color: #f8fafc;
+}
+
+.tabela td {
+    padding: 14px 20px;
+    font-size: 0.92rem;
+    color: #cbd5e1;
+    vertical-align: middle;
+}
+
+:global(body.modo-claro) .tabela td {
+    color: #334155;
+}
+
+/* BADGES DE TIPO */
+.badgeTipo {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 5px 12px;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    width: fit-content;
+}
+
+.badgeFornecedor {
+    background-color: rgba(59, 130, 246, 0.15);
+    color: #60a5fa;
+    border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.badgeFuncionario {
+    background-color: rgba(16, 185, 129, 0.15);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.badgeTerceirizado {
+    background-color: rgba(245, 158, 11, 0.15);
+    color: #fbbf24;
+    border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+:global(body.modo-claro) .badgeFornecedor {
+    background-color: #eff6ff;
+    color: #2563eb;
+    border-color: #bfdbfe;
+}
+
+:global(body.modo-claro) .badgeFuncionario {
+    background-color: #ecfdf5;
+    color: #059669;
+    border-color: #a7f3d0;
+}
+
+:global(body.modo-claro) .badgeTerceirizado {
+    background-color: #fffbeb;
+    color: #d97706;
+    border-color: #fde68a;
+}
+
+/* NOME */
+.colunaNome {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.avatarInicial {
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    color: #f8fafc;
+    font-size: 0.85rem;
+}
+
+:global(body.modo-claro) .avatarInicial {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+    color: #0f172a;
+}
+
+.nomeTexto {
+    font-weight: 600;
+    color: #f8fafc;
+    font-size: 0.95rem;
+}
+
+:global(body.modo-claro) .nomeTexto {
+    color: #0f172a;
+}
+
+/* PIX */
+.pixContainer {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.pixTexto {
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+    font-size: 0.85rem;
+    color: #94a3b8;
+    background-color: rgba(0, 0, 0, 0.25);
+    padding: 4px 10px;
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+:global(body.modo-claro) .pixTexto {
+    background-color: #f1f5f9;
+    border-color: #e2e8f0;
+    color: #475569;
+}
+
+.pixVazio {
+    font-size: 0.85rem;
+    color: #64748b;
+    font-style: italic;
+}
+
+.btnCopiarPix {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background-color: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #94a3b8;
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.btnCopiarPix:hover {
+    background-color: rgba(255, 255, 255, 0.12);
+    color: #ffffff;
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.btnCopiado {
+    background-color: rgba(16, 185, 129, 0.2) !important;
+    border-color: #10b981 !important;
+    color: #10b981 !important;
+}
+
+:global(body.modo-claro) .btnCopiarPix {
+    background-color: #f1f5f9;
+    border-color: #cbd5e1;
+    color: #475569;
+}
+
+:global(body.modo-claro) .btnCopiarPix:hover {
+    background-color: #e2e8f0;
+    color: #0f172a;
+}
+
+/* AÇÕES */
+.acoesContainer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.btnAcaoEditar, .btnAcaoExcluir {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.btnAcaoEditar {
+    background-color: rgba(59, 130, 246, 0.12);
+    color: #60a5fa;
+}
+
+.btnAcaoEditar:hover {
+    background-color: #3b82f6;
+    color: #ffffff;
+}
+
+.btnAcaoExcluir {
+    background-color: rgba(239, 68, 68, 0.12);
+    color: #f87171;
+}
+
+.btnAcaoExcluir:hover {
+    background-color: #ef4444;
+    color: #ffffff;
+}
+
+:global(body.modo-claro) .btnAcaoEditar {
+    background-color: #eff6ff;
+    color: #2563eb;
+}
+
+:global(body.modo-claro) .btnAcaoEditar:hover {
+    background-color: #2563eb;
+    color: #ffffff;
+}
+
+:global(body.modo-claro) .btnAcaoExcluir {
+    background-color: #fef2f2;
+    color: #dc2626;
+}
+
+:global(body.modo-claro) .btnAcaoExcluir:hover {
+    background-color: #dc2626;
+    color: #ffffff;
+}
+
+/* ESTADO VAZIO */
+.estadoVazio {
+    padding: 60px 20px;
+    text-align: center;
+    color: #64748b;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+}
+
+.btnLimparFiltros {
+    background-color: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: #cbd5e1;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btnLimparFiltros:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+    color: #ffffff;
+}
+
+:global(body.modo-claro) .btnLimparFiltros {
+    background-color: #f1f5f9;
+    border-color: #cbd5e1;
+    color: #475569;
+}
+
+/* MODAL DE CADASTRO */
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(5, 8, 16, 0.8);
+    backdrop-filter: blur(6px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    padding: 20px;
+    animation: fadeIn 0.15s ease-out;
+}
+
+.modalCard {
+    background-color: #161d2f;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 18px;
+    width: 100%;
+    max-width: 520px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+    overflow: hidden;
+    animation: scaleUp 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+:global(body.modo-claro) .modalCard {
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 20px 45px rgba(15, 23, 42, 0.15);
+}
+
+.modalHeader {
+    padding: 20px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+:global(body.modo-claro) .modalHeader {
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.modalHeader h2 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #f8fafc;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+:global(body.modo-claro) .modalHeader h2 {
+    color: #0f172a;
+}
+
+.btnFecharModal {
+    background: transparent;
+    border: none;
+    color: #94a3b8;
+    font-size: 1.1rem;
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+}
+
+.btnFecharModal:hover {
+    color: #f8fafc;
+}
+
+:global(body.modo-claro) .btnFecharModal:hover {
+    color: #0f172a;
+}
+
+.modalForm {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.formGrupo {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.formLabel {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: #cbd5e1;
+}
+
+:global(body.modo-claro) .formLabel {
+    color: #475569;
+}
+
+.formInput {
+    background-color: rgba(11, 15, 25, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 10px;
+    padding: 12px 14px;
+    color: #f8fafc;
+    font-size: 0.95rem;
+    outline: none;
+    transition: all 0.2s ease;
+}
+
+.formInput:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+:global(body.modo-claro) .formInput {
+    background-color: #f8fafc;
+    border-color: #cbd5e1;
+    color: #0f172a;
+}
+
+:global(body.modo-claro) .formInput:focus {
+    background-color: #ffffff;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+/* SELETOR DE TIPO */
+.opcoesTipo {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+}
+
+.opcaoTipoCard {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 12px 8px;
+    background-color: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #94a3b8;
+    text-align: center;
+    transition: all 0.15s ease;
+}
+
+.opcaoTipoCard input {
+    display: none;
+}
+
+.opcaoTipoCard:hover {
+    background-color: rgba(255, 255, 255, 0.07);
+    color: #ffffff;
+}
+
+.opcaoSelecionada {
+    background-color: rgba(59, 130, 246, 0.15) !important;
+    border-color: #3b82f6 !important;
+    color: #60a5fa !important;
+}
+
+:global(body.modo-claro) .opcaoTipoCard {
+    background-color: #f8fafc;
+    border-color: #e2e8f0;
+    color: #64748b;
+}
+
+:global(body.modo-claro) .opcaoTipoCard:hover {
+    background-color: #f1f5f9;
+    color: #0f172a;
+}
+
+:global(body.modo-claro) .opcaoSelecionada {
+    background-color: #eff6ff !important;
+    border-color: #2563eb !important;
+    color: #2563eb !important;
+}
+
+.modalAcoes {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 10px;
+}
+
+.btnCancelarForm {
+    background-color: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: #cbd5e1;
+    padding: 11px 18px;
+    border-radius: 10px;
+    font-size: 0.92rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btnCancelarForm:hover {
+    background-color: rgba(255, 255, 255, 0.12);
+    color: #ffffff;
+}
+
+:global(body.modo-claro) .btnCancelarForm {
+    background-color: #f1f5f9;
+    border-color: #cbd5e1;
+    color: #475569;
+}
+
+:global(body.modo-claro) .btnCancelarForm:hover {
+    background-color: #e2e8f0;
+    color: #0f172a;
+}
+
+.btnSalvarForm {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    border: none;
+    color: #ffffff;
+    padding: 11px 22px;
+    border-radius: 10px;
+    font-size: 0.92rem;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
+    transition: all 0.2s ease;
+}
+
+.btnSalvarForm:hover {
+    background: linear-gradient(135deg, #60a5fa 0%, #2563eb 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 18px rgba(37, 99, 235, 0.45);
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes scaleUp {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+}

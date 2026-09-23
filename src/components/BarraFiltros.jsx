@@ -18,7 +18,7 @@ const MESES = [
 
 const ANOS_DISPONIVEIS = [2024, 2025, 2026, 2027, 2028, 2029, 2030];
 
-function BarraFiltros({ aoClicarEmFiltrar, opcoesCategorias = [], aoAbrirRelatorio }) {
+function BarraFiltros({ aoClicarEmFiltrar, opcoesCategorias = [], aoAbrirRelatorio, aoAbrirContatos }) {
     const anoAtual = new Date().getFullYear();
     const mesAtual = new Date().getMonth() + 1;
 
@@ -92,17 +92,31 @@ function BarraFiltros({ aoClicarEmFiltrar, opcoesCategorias = [], aoAbrirRelator
                     </div>
                 </div>
 
-                {aoAbrirRelatorio && (
-                    <button
-                        type="button"
-                        className={styles.botaoRelatorio}
-                        onClick={aoAbrirRelatorio}
-                        title="Gerar e imprimir relatório financeiro completo deste mês"
-                    >
-                        <i className="fa-solid fa-print"></i>
-                        Relatório para Impressão
-                    </button>
-                )}
+                <div className={styles.grupoBotoesAcao}>
+                    {aoAbrirContatos && (
+                        <button
+                            type="button"
+                            className={styles.botaoContatos}
+                            onClick={aoAbrirContatos}
+                            title="Gerenciar rede de fornecedores, funcionários e terceirizados"
+                        >
+                            <i className="fa-solid fa-address-book"></i>
+                            Rede de Contatos
+                        </button>
+                    )}
+
+                    {aoAbrirRelatorio && (
+                        <button
+                            type="button"
+                            className={styles.botaoRelatorio}
+                            onClick={aoAbrirRelatorio}
+                            title="Gerar e imprimir relatório financeiro completo deste mês"
+                        >
+                            <i className="fa-solid fa-print"></i>
+                            Relatório para Impressão
+                        </button>
+                    )}
+                </div>
             </div>
 
             {/* LINHA 2: MESES NA LINHA DE BAIXO E O 'TODOS' SEPARADO AO FINAL DA LINHA */}

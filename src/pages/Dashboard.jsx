@@ -7,11 +7,13 @@ import ResumoFiltros from '../components/ResumoFiltros';
 import TabelaContas from '../components/TabelaContas';
 
 
-// IMPORTAÇÃO DOS 3 MODAIS
+// IMPORTAÇÃO DOS MODAIS E PÁGINAS
 import ModalPagamento from '../components/modais/ModalPagamento';
 import ModalAdicionarSaldo from '../components/modais/ModalAdicionarSaldo';
 import ModalCarteiras from '../components/modais/ModalCarteiras';
+import ModalMensagem from '../components/modais/ModalMensagem';
 import RelatorioImpressao from './RelatorioImpressao';
+import Contatos from './Contatos';
 
 import { API_BASE_URL } from '../services/api';
 
@@ -23,17 +25,29 @@ const traduzirConta = (item) => ({
     data_pagamento: item.data_pagamento ? item.data_pagamento.split('T')[0] : ''
 });
 
-function Dashboard({usuarioId}) {
+function Dashboard({ usuarioId, tema = 'escuro' }) {
     // 1. ESTADOS VISUAIS (Controle dos Modais e Telas)
-    const [telaAtual, setTelaAtual] = useState('dashboard'); // 'dashboard' | 'relatorio'
+    const [telaAtual, setTelaAtual] = useState('dashboard'); // 'dashboard' | 'relatorio' | 'contatos'
     const [modalSaldoAberto, setModalSaldoAberto] = useState(false);
     const [modalCarteirasAberto, setModalCarteirasAberto] = useState(false);
     const [contaParaPagar, setContaParaPagar] = useState(null);
+
+    // Modal Universal para Notificações e Confirmações
+    const [modalMsg, setModalMsg] = useState({
+        aberta: false,
+        tipo: 'aviso',
+        titulo: '',
+        mensagem: '',
+        perigoso: false,
+        textoConfirmar: 'OK',
+        aoConfirmar: null
+    });
 
 // 2. ESTADOS DE DADOS (Começam Vazios)
     const [listaCategorias, setListaCategorias] = useState([]);
     const [minhasCarteiras, setMinhasCarteiras] = useState([]);
     const [listaContas, setListaContas] = useState([]);
+    const [listaContatos, setListaContatos] = useState([]);
 
 // --- NOVOS ESTADOS DOS FILTROS ---
     const anoAtualPadrao = new Date().getFullYear();
@@ -95,6 +109,13 @@ function Dashboard({usuarioId}) {
                     setMinhasCarteiras(dadosCarteiras);
                 }
 
+                // --- PARTE 5: CONTATOS ---
+                const resContatos = await fetch(`${API_BASE_URL}/contatos`, { headers });
+                if (resContatos.ok) {
+                    const dadosContatos = await resContatos.json();
+                    setListaContatos(dadosContatos);
+                }
+
             } catch (erro) {
                 console.error("Erro ao buscar dados:", erro);
             }
@@ -103,6 +124,19 @@ function Dashboard({usuarioId}) {
         buscarDados();
         // Adicionamos usuarioId na dependência: se mudar o usuário, recarrega tudo
     }, [usuarioId]);
+
+    const recarregarContatos = async () => {
+        if (!usuarioId) return;
+        try {
+            const res = await fetch(`${API_BASE_URL}/contatos`, { headers: { 'user-id': usuarioId } });
+            if (res.ok) {
+                const dados = await res.json();
+                setListaContatos(dados);
+            }
+        } catch (e) {
+            console.error('Erro ao recarregar contatos:', e);
+        }
+    };
 
 
 // --- CÁLCULO DO RESUMO (ENTRADAS E SAÍDAS) ---
@@ -296,35 +330,66 @@ function Dashboard({usuarioId}) {
         }
     };
 
-    const estornarConta = async (idConta) => {
-        if (!window.confirm("Deseja desfazer este pagamento?")) return;
+    const estornarConta = (idConta) => {
+        setModalMsg({
+            aberta: true,
+            tipo: 'confirmacao',
+            titulo: 'Desfazer Pagamento',
+            mensagem: 'Deseja realmente estornar este pagamento? A conta retornará como pendente e o saldo será ajustado na carteira.',
+            perigoso: true,
+            textoConfirmar: 'Sim, Estornar',
+            aoConfirmar: async () => {
+                setModalMsg(prev => ({ ...prev, aberta: false }));
+                try {
+                    const resposta = await fetch(`${API_BASE_URL}/contas/estornar`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'user-id': usuarioId // <--- IMPORTANTE
+                        },
+                        body: JSON.stringify({ conta_id: idConta })
+                    });
 
-        try {
-            const resposta = await fetch(`${API_BASE_URL}/contas/estornar`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'user-id': usuarioId // <--- IMPORTANTE
-                },
-                body: JSON.stringify({ conta_id: idConta })
-            });
+                    if (resposta.ok) {
+                        const resContas = await fetch(`${API_BASE_URL}/contas`, { headers: { 'user-id': usuarioId } });
+                        const dadosContas = await resContas.json();
+                        const contasTraduzidas = dadosContas.map(traduzirConta);
+                        setListaContas(contasTraduzidas);
 
-            if (resposta.ok) {
-                const resContas = await fetch(`${API_BASE_URL}/contas`, { headers: { 'user-id': usuarioId } });
-                const dadosContas = await resContas.json();
-                const contasTraduzidas = dadosContas.map(traduzirConta);
-                setListaContas(contasTraduzidas);
+                        const resCarteiras = await fetch(`${API_BASE_URL}/carteiras`, { headers: { 'user-id': usuarioId } });
+                        setMinhasCarteiras(await resCarteiras.json());
 
-                const resCarteiras = await fetch(`${API_BASE_URL}/carteiras`, { headers: { 'user-id': usuarioId } });
-                setMinhasCarteiras(await resCarteiras.json());
-
-                alert("Estorno realizado!");
-            } else {
-                alert("Erro no servidor ao estornar.");
+                        setModalMsg({
+                            aberta: true,
+                            tipo: 'sucesso',
+                            titulo: 'Estorno Realizado',
+                            mensagem: 'O pagamento foi desfeito com sucesso e o saldo foi creditado novamente na carteira.',
+                            perigoso: false,
+                            aoConfirmar: () => setModalMsg(prev => ({ ...prev, aberta: false }))
+                        });
+                    } else {
+                        setModalMsg({
+                            aberta: true,
+                            tipo: 'erro',
+                            titulo: 'Erro no Servidor',
+                            mensagem: 'Ocorreu um erro no servidor ao estornar a conta.',
+                            perigoso: false,
+                            aoConfirmar: () => setModalMsg(prev => ({ ...prev, aberta: false }))
+                        });
+                    }
+                } catch (erro) {
+                    console.error("Erro ao estornar:", erro);
+                    setModalMsg({
+                        aberta: true,
+                        tipo: 'erro',
+                        titulo: 'Erro de Conexão',
+                        mensagem: 'Não foi possível se comunicar com o servidor para realizar o estorno.',
+                        perigoso: false,
+                        aoConfirmar: () => setModalMsg(prev => ({ ...prev, aberta: false }))
+                    });
+                }
             }
-        } catch (erro) {
-            console.error("Erro ao estornar:", erro);
-        }
+        });
     };
 
     const contasFiltradasParaExibir = listaContas.filter(conta => {
@@ -368,6 +433,19 @@ function Dashboard({usuarioId}) {
         );
     }
 
+    if (telaAtual === 'contatos') {
+        return (
+            <Contatos
+                usuarioId={usuarioId}
+                tema={tema}
+                aoVoltar={() => {
+                    setTelaAtual('dashboard');
+                    recarregarContatos();
+                }}
+            />
+        );
+    }
+
     return (
         <div style={{ padding: '20px 24px 60px 24px', backgroundColor: 'transparent', minHeight: '100vh' }}>
 
@@ -378,11 +456,12 @@ function Dashboard({usuarioId}) {
                 aoClicarCarteiras={() => setModalCarteirasAberto(true)}
             />
 
-            {/* 1. BARRA DE FILTROS COM BOTÃO DE RELATÓRIO INTEGRADO */}
+            {/* 1. BARRA DE FILTROS COM BOTÃO DE RELATÓRIO E CONTATOS INTEGRADOS */}
             <BarraFiltros
                 opcoesCategorias={listaCategorias}
                 aoClicarEmFiltrar={(novosDados) => setFiltros(prev => ({ ...prev, ...novosDados }))}
                 aoAbrirRelatorio={() => setTelaAtual('relatorio')}
+                aoAbrirContatos={() => setTelaAtual('contatos')}
             />
 
             {/* 2. RESUMO DOS FILTROS */}
@@ -393,11 +472,11 @@ function Dashboard({usuarioId}) {
             />
 
             {/* 3. TABELA DE CONTAS */}
-            {/* ATENÇÃO: Aqui trocamos 'listaContas' por 'contasFiltradasParaExibir' */}
-
+            {/* Passamos contatos para sugestão / autocomplete em tempo real */}
             <TabelaContas
                 categorias={listaCategorias}
                 dados={contasFiltradasParaExibir}
+                contatos={listaContatos}
                 aoClicarPagar={abrirModalPagamento}
                 aoSalvarNovaConta={criarConta}
                 aoSalvarEdicao={editarConta}
@@ -405,7 +484,7 @@ function Dashboard({usuarioId}) {
                 aoClicarEstornar={estornarConta}
             />
 
-            {/* --- ÁREA DOS 3 MODAIS --- */}
+            {/* --- ÁREA DOS MODAIS --- */}
 
             {contaParaPagar && (
                 <ModalPagamento
@@ -431,6 +510,18 @@ function Dashboard({usuarioId}) {
                     aoFechar={() => setModalCarteirasAberto(false)}
                 />
             )}
+
+            {/* MODAL UNIVERSAL PARA MENSAGENS E CONFIRMAÇÕES */}
+            <ModalMensagem
+                aberta={modalMsg.aberta}
+                tipo={modalMsg.tipo}
+                titulo={modalMsg.titulo}
+                mensagem={modalMsg.mensagem}
+                perigoso={modalMsg.perigoso}
+                textoConfirmar={modalMsg.textoConfirmar}
+                aoConfirmar={modalMsg.aoConfirmar}
+                aoCancelar={() => setModalMsg(prev => ({ ...prev, aberta: false }))}
+            />
 
         </div>
     )

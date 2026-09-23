@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import styles from '../../modules/ModalPagamentos.module.css';
+import ModalMensagem from './ModalMensagem';
 
 // 1. Adicionada a prop 'aoConfirmar' aqui no topo
 function ModalPagamento({ conta, aoFechar, carteiras = [], aoConfirmar }) {
@@ -16,6 +17,7 @@ function ModalPagamento({ conta, aoFechar, carteiras = [], aoConfirmar }) {
     const [mensagem, setMensagem] = useState(null);
     const [bloquearBotao, setBloquearBotao] = useState(false);
     const [classeMensagem, setClasseMensagem] = useState('');
+    const [modalAlertaAberto, setModalAlertaAberto] = useState(false);
 
     useEffect(() => {
         const valorInserido = parseFloat(valorPago);
@@ -55,7 +57,7 @@ function ModalPagamento({ conta, aoFechar, carteiras = [], aoConfirmar }) {
     const lidarComPagamento = () => {
         // Validação final: Origem é obrigatória antes de enviar para o banco
         if (!origem) {
-            alert("Por favor, selecione a carteira de origem!");
+            setModalAlertaAberto(true);
             return;
         }
 
@@ -150,6 +152,13 @@ function ModalPagamento({ conta, aoFechar, carteiras = [], aoConfirmar }) {
                     CONFIRMAR PAGAMENTO
                 </button>
 
+                <ModalMensagem
+                    aberta={modalAlertaAberto}
+                    tipo="aviso"
+                    titulo="Origem Obrigatória"
+                    mensagem="Por favor, selecione a carteira de origem para registrar este pagamento."
+                    aoConfirmar={() => setModalAlertaAberto(false)}
+                />
             </div>
         </div>
     );

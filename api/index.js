@@ -385,6 +385,113 @@ router.get('/movimentacoes', async (req, res) => {
     }
 });
 
+// --- 14. CONTATOS (LISTAR) ---
+router.get('/contatos', async (req, res) => {
+    const usuario_id = req.headers['user-id'];
+    if (!usuario_id) {
+        return res.status(401).json({ erro: 'Usuário não identificado' });
+    }
+    const { tipo, busca } = req.query;
+    try {
+        let sql = 'SELECT * FROM contatos WHERE usuario_id = $1';
+        const params = [usuario_id];
+
+        if (tipo && tipo !== 'todos') {
+            params.push(tipo);
+            sql += ` AND tipo = $${params.length}`;
+        }
+
+        if (busca && busca.trim()) {
+            params.push(`%${busca.trim()}%`);
+            sql += ` AND (nome ILIKE $${params.length} OR chave_pix ILIKE $${params.length})`;
+        }
+
+        sql += ' ORDER BY nome ASC';
+        const consulta = await pool.query(sql, params);
+        res.json(consulta.rows);
+    } catch (erro) {
+        console.error("Erro ao buscar contatos:", erro);
+        res.status(500).json({ mensagem: 'Erro ao buscar contatos' });
+    }
+});
+
+// --- 15. CONTATOS (CRIAR) ---
+router.post('/contatos', async (req, res) => {
+    const usuario_id = req.headers['user-id'];
+    if (!usuario_id) {
+        return res.status(401).json({ erro: 'Usuário não identificado' });
+    }
+    const { nome, chave_pix, tipo } = req.body;
+    if (!nome || !nome.trim()) {
+        return res.status(400).json({ erro: 'O nome do contato é obrigatório' });
+    }
+    const tipoValido = ['fornecedor', 'funcionario', 'terceirizado'].includes(tipo) ? tipo : 'fornecedor';
+    try {
+        const resultado = await pool.query(
+            `INSERT INTO contatos (usuario_id, nome, chave_pix, tipo)
+             VALUES ($1, $2, $3, $4)
+             RETURNING *`,
+            [usuario_id, nome.trim(), chave_pix ? chave_pix.trim() : '', tipoValido]
+        );
+        res.status(201).json(resultado.rows[0]);
+    } catch (erro) {
+        console.error("Erro ao criar contato:", erro);
+        res.status(500).json({ mensagem: 'Erro ao cadastrar contato' });
+    }
+});
+
+// --- 16. CONTATOS (EDITAR) ---
+router.put('/contatos/:id', async (req, res) => {
+    const usuario_id = req.headers['user-id'];
+    const { id } = req.params;
+    const { nome, chave_pix, tipo } = req.body;
+    if (!usuario_id) {
+        return res.status(401).json({ erro: 'Usuário não identificado' });
+    }
+    if (!nome || !nome.trim()) {
+        return res.status(400).json({ erro: 'O nome do contato é obrigatório' });
+    }
+    const tipoValido = ['fornecedor', 'funcionario', 'terceirizado'].includes(tipo) ? tipo : 'fornecedor';
+    try {
+        const resultado = await pool.query(
+            `UPDATE contatos
+             SET nome = $1, chave_pix = $2, tipo = $3
+             WHERE id = $4 AND usuario_id = $5
+             RETURNING *`,
+            [nome.trim(), chave_pix ? chave_pix.trim() : '', tipoValido, id, usuario_id]
+        );
+        if (resultado.rowCount === 0) {
+            return res.status(404).json({ erro: 'Contato não encontrado' });
+        }
+        res.json(resultado.rows[0]);
+    } catch (erro) {
+        console.error("Erro ao atualizar contato:", erro);
+        res.status(500).json({ mensagem: 'Erro ao atualizar contato' });
+    }
+});
+
+// --- 17. CONTATOS (DELETAR) ---
+router.delete('/contatos/:id', async (req, res) => {
+    const usuario_id = req.headers['user-id'];
+    const { id } = req.params;
+    if (!usuario_id) {
+        return res.status(401).json({ erro: 'Usuário não identificado' });
+    }
+    try {
+        const resultado = await pool.query(
+            'DELETE FROM contatos WHERE id = $1 AND usuario_id = $2',
+            [id, usuario_id]
+        );
+        if (resultado.rowCount === 0) {
+            return res.status(404).json({ erro: 'Contato não encontrado' });
+        }
+        res.json({ mensagem: 'Contato excluído com sucesso' });
+    } catch (erro) {
+        console.error("Erro ao excluir contato:", erro);
+        res.status(500).json({ mensagem: 'Erro ao excluir contato' });
+    }
+});
+
 // Rota de Healthcheck
 router.get('/health', (req, res) => {
     res.json({ status: 'ok', server: 'Vercel Serverless + Neon PostgreSQL' });
