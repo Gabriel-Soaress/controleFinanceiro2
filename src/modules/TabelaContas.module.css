@@ -164,56 +164,64 @@
 .colunaVencimento{ width: 150px; flex-shrink: 0; }
 .colunaAcoes     { width: 140px; flex-shrink: 0; display: flex; gap: 6px; justify-content: center; }
 
+/* LINHA DO FORMULÁRIO COM STACKING CONTEXT SUPERIOR */
+.linhaFormularioNovaConta {
+    position: relative !important;
+    z-index: 50 !important;
+    overflow: visible !important;
+}
+
 /* AUTOCOMPLETE / SUGESTÕES EM TEMPO REAL */
 .dropdownSugestoes {
     position: absolute;
-    top: calc(100% + 5px);
+    top: calc(100% + 6px);
     left: 0;
-    width: 280px;
-    background-color: #1e293b;
-    border: 1px solid rgba(255, 255, 255, 0.15);
+    width: 320px;
+    background-color: #0d1322 !important;
+    border: 1px solid #3b82f6 !important;
     border-radius: 12px;
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.08);
-    z-index: 1000;
+    box-shadow: 0 20px 45px rgba(0, 0, 0, 0.95), 0 0 0 1px rgba(59, 130, 246, 0.25);
+    z-index: 99999 !important;
     overflow: hidden;
-    animation: fadeIn 0.15s ease-out;
+    opacity: 1 !important;
 }
 
 :global(body.modo-claro) .dropdownSugestoes {
-    background-color: #ffffff;
-    border: 1px solid #cbd5e1;
-    box-shadow: 0 10px 25px rgba(15, 23, 42, 0.15);
+    background-color: #ffffff !important;
+    border: 1px solid #94a3b8 !important;
+    box-shadow: 0 20px 40px rgba(15, 23, 42, 0.25);
 }
 
 .cabecalhoSugestoes {
-    padding: 8px 12px;
+    padding: 8px 14px;
     font-size: 0.72rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.05em;
     color: #94a3b8;
-    background-color: rgba(0, 0, 0, 0.2);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    background-color: #161d2f !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     display: flex;
     align-items: center;
     gap: 6px;
 }
 
 :global(body.modo-claro) .cabecalhoSugestoes {
-    background-color: #f1f5f9;
-    color: #64748b;
+    background-color: #f1f5f9 !important;
+    color: #475569;
     border-bottom: 1px solid #e2e8f0;
 }
 
 .itemSugestao {
-    padding: 9px 12px;
+    background-color: #0d1322 !important;
+    padding: 10px 14px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
     cursor: pointer;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-    transition: all 0.15s ease;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    transition: background-color 0.15s ease;
 }
 
 .itemSugestao:last-child {
@@ -221,15 +229,16 @@
 }
 
 .itemSugestao:hover {
-    background-color: rgba(59, 130, 246, 0.15);
+    background-color: #1e293b !important;
 }
 
 :global(body.modo-claro) .itemSugestao {
+    background-color: #ffffff !important;
     border-bottom: 1px solid #f1f5f9;
 }
 
 :global(body.modo-claro) .itemSugestao:hover {
-    background-color: #eff6ff;
+    background-color: #eff6ff !important;
 }
 
 .itemSugestaoInfo {

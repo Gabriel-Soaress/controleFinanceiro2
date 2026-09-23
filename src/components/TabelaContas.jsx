@@ -358,7 +358,7 @@ function TabelaContas({
 
                 {/* FORMULÁRIO DE NOVA CONTA */}
                 {abaAtiva === 'a_pagar' && mostrandoFormulario && (
-                    <div className={`${styles.linhaContainer} ${styles.bordaVermelha}`}>
+                    <div className={`${styles.linhaContainer} ${styles.linhaFormularioNovaConta} ${styles.bordaVermelha}`}>
                         <div className={styles.colunaId}>
                             <input
                                 className={styles.inputLinha}
