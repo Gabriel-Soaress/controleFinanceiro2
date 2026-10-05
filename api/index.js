@@ -327,7 +327,7 @@ router.post('/movimentacoes/entrada', async (req, res) => {
 // --- 10.1 AJUSTAR / DEFINIR SALDO DA CARTEIRA DIRETAMENTE ---
 router.post('/carteiras/ajustar-saldo', async (req, res) => {
     const usuario_id = req.headers['user-id'];
-    const { carteira_id, novo_saldo, data, data_pagamento, motivo } = req.body;
+    const { carteira_id, novo_saldo } = req.body;
 
     if (!usuario_id) {
         return res.status(401).json({ erro: "Usuário não autenticado" });
@@ -343,58 +343,24 @@ router.post('/carteiras/ajustar-saldo', async (req, res) => {
         return res.status(400).json({ erro: "Informe um saldo válido" });
     }
 
-    const dataFinal = data_pagamento || data || new Date().toISOString().split('T')[0];
-    const motivoFinal = (motivo && String(motivo).trim()) ? String(motivo).trim() : 'Ajuste de saldo';
-
-    const client = await pool.connect();
     try {
-        await client.query('BEGIN');
-
-        // Busca o saldo atual para calcular a diferença
-        const buscaCart = await client.query(
-            'SELECT * FROM carteiras WHERE id = $1 AND usuario_id = $2',
-            [carteiraIdNum, usuario_id]
-        );
-
-        if (buscaCart.rows.length === 0) {
-            await client.query('ROLLBACK');
-            return res.status(404).json({ erro: "Carteira não encontrada ou não pertence ao usuário" });
-        }
-
-        const saldoAnterior = parseFloat(buscaCart.rows[0].saldo) || 0;
-        const diferenca = novoSaldoNum - saldoAnterior;
-
-        // Atualiza a carteira com o novo saldo exato
-        const cartAtualizada = await client.query(
+        const cartAtualizada = await pool.query(
             'UPDATE carteiras SET saldo = $1 WHERE id = $2 AND usuario_id = $3 RETURNING *',
             [novoSaldoNum, carteiraIdNum, usuario_id]
         );
 
-        // Se houve diferença de valor, gera uma movimentação de auditoria/ajuste sem inflar receitas operacionais
-        if (Math.abs(diferenca) > 0.001) {
-            const valorMov = Math.abs(diferenca);
-            const descMov = `${motivoFinal} (${diferenca > 0 ? '+' : '-'}${valorMov.toFixed(2)})`;
-
-            await client.query(
-                `INSERT INTO movimentacoes (usuario_id, conta_id, carteira_id, valor, tipo, descricao, data_pagamento)
-                 VALUES ($1, null, $2, $3, $4, $5, $6)`,
-                [usuario_id, carteiraIdNum, valorMov, 'AJUSTE', descMov, dataFinal]
-            );
+        if (cartAtualizada.rowCount === 0) {
+            return res.status(404).json({ erro: "Carteira não encontrada ou não pertence ao usuário" });
         }
 
-        await client.query('COMMIT');
         res.json({
             mensagem: "Saldo ajustado com sucesso!",
             carteira: cartAtualizada.rows[0],
-            saldoAnterior,
             novoSaldo: novoSaldoNum
         });
     } catch (erro) {
-        await client.query('ROLLBACK');
         console.error("Erro ao ajustar saldo:", erro);
-        res.status(500).json({ erro: "Erro ao ajustar saldo da carteira" });
-    } finally {
-        client.release();
+        res.status(500).json({ erro: "Erro ao atualizar saldo da carteira" });
     }
 });
 
