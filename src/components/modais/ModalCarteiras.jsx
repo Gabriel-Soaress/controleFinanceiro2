@@ -12,7 +12,7 @@ const CORES_PALETA = [
     '#5E35B1', // Violeta
 ];
 
-function ModalCarteiras({ aoFechar, carteiras = [], aoCriarCarteira }) {
+function ModalCarteiras({ aoFechar, carteiras = [], aoCriarCarteira, aoAjustarSaldo }) {
     const [mostrandoCriacao, setMostrandoCriacao] = useState(false);
     const [nome, setNome] = useState('');
     const [cor, setCor] = useState('#3E615B');
@@ -76,21 +76,50 @@ function ModalCarteiras({ aoFechar, carteiras = [], aoCriarCarteira }) {
                         </p>
                     )}
 
-                    {carteiras.map(cart => (
-                        <div key={cart.id} className={styles.itemCarteira}>
-                            <span className={styles.nomeCarteira}>
-                                <i
-                                    className={`fa-solid fa-wallet ${styles.iconeCarteira}`}
-                                    style={{ color: cart.cor || '#888' }}
-                                ></i>
-                                {cart.nome}
-                            </span>
+                    {carteiras.map(cart => {
+                        const saldoNum = Number(cart.saldo || 0);
+                        const estaNegativo = saldoNum < 0;
 
-                            <span className={styles.valorCarteira}>
-                                {formatarBRL(cart.saldo)}
-                            </span>
-                        </div>
-                    ))}
+                        return (
+                            <div key={cart.id} className={styles.itemCarteira}>
+                                <span className={styles.nomeCarteira}>
+                                    <i
+                                        className={`fa-solid fa-wallet ${styles.iconeCarteira}`}
+                                        style={{ color: cart.cor || '#888' }}
+                                    ></i>
+                                    {cart.nome}
+                                </span>
+
+                                <div style={{ display: 'flex', alignItems: 'center' }}>
+                                    <span className={estaNegativo ? styles.valorCarteiraNegativo : styles.valorCarteira}>
+                                        {formatarBRL(cart.saldo)}
+                                    </span>
+                                    {estaNegativo && aoAjustarSaldo && (
+                                        <button
+                                            type="button"
+                                            className={styles.btnZerarItemCarteira}
+                                            title="Zerar o saldo negativo desta conta (define para R$ 0,00)"
+                                            disabled={salvando}
+                                            onClick={async () => {
+                                                try {
+                                                    setSalvando(true);
+                                                    await aoAjustarSaldo({
+                                                        carteira_id: cart.id,
+                                                        novo_saldo: 0,
+                                                        motivo: `Zeramento de saldo - ${cart.nome}`
+                                                    });
+                                                } finally {
+                                                    setSalvando(false);
+                                                }
+                                            }}
+                                        >
+                                            <i className="fa-solid fa-rotate-left"></i> Zerar
+                                        </button>
+                                    )}
+                                </div>
+                            </div>
+                        );
+                    })}
                 </div>
 
                 {/* Formulário de Nova Carteira ou Botão para Abrir */}

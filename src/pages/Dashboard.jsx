@@ -320,6 +320,51 @@ function Dashboard({ usuarioId, tema = 'escuro' }) {
         }
     };
 
+    const ajustarSaldoCarteira = async (dadosDoAjuste) => {
+        try {
+            const resposta = await fetch(`${API_BASE_URL}/carteiras/ajustar-saldo`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'user-id': usuarioId
+                },
+                body: JSON.stringify(dadosDoAjuste)
+            });
+
+            if (!resposta.ok) {
+                const erroData = await resposta.json().catch(() => ({}));
+                throw new Error(erroData.erro || erroData.mensagem || 'Erro ao ajustar saldo');
+            }
+
+            const resCarteiras = await fetch(`${API_BASE_URL}/carteiras`, { headers: { 'user-id': usuarioId } });
+            if (resCarteiras.ok) {
+                setMinhasCarteiras(await resCarteiras.json());
+            }
+
+            setFiltros(prev => ({ ...prev }));
+
+            setModalMsg({
+                aberta: true,
+                tipo: 'sucesso',
+                titulo: 'Saldo Atualizado',
+                mensagem: 'O saldo da carteira foi atualizado com sucesso!',
+                aoConfirmar: () => setModalMsg(prev => ({ ...prev, aberta: false }))
+            });
+
+            return true;
+        } catch (erro) {
+            console.error("Erro ao ajustar saldo:", erro);
+            setModalMsg({
+                aberta: true,
+                tipo: 'erro',
+                titulo: 'Erro ao Ajustar Saldo',
+                mensagem: erro.message || 'Não foi possível atualizar o saldo da carteira.',
+                aoConfirmar: () => setModalMsg(prev => ({ ...prev, aberta: false }))
+            });
+            throw erro;
+        }
+    };
+
     const abrirModalPagamento = (conta) => {
         setContaParaPagar(conta);
     };
@@ -520,6 +565,7 @@ function Dashboard({ usuarioId, tema = 'escuro' }) {
                 <ModalAdicionarSaldo
                     carteiras={minhasCarteiras}
                     aoSalvar={adicionarSaldo}
+                    aoAjustarSaldo={ajustarSaldoCarteira}
                     aoFechar={() => setModalSaldoAberto(false)}
                 />
             )}
@@ -528,6 +574,7 @@ function Dashboard({ usuarioId, tema = 'escuro' }) {
                 <ModalCarteiras
                     carteiras={minhasCarteiras}
                     aoCriarCarteira={criarCarteira}
+                    aoAjustarSaldo={ajustarSaldoCarteira}
                     aoFechar={() => setModalCarteirasAberto(false)}
                 />
             )}

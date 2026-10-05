@@ -97,6 +97,33 @@
     font-size: 1.05rem;
 }
 
+.valorCarteiraNegativo {
+    color: #ef4444;
+    font-weight: 700;
+    font-size: 1.05rem;
+}
+
+.btnZerarItemCarteira {
+    background: rgba(239, 68, 68, 0.15);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: #f87171;
+    border-radius: 6px;
+    padding: 3px 8px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-left: 8px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.btnZerarItemCarteira:hover {
+    background: rgba(239, 68, 68, 0.3);
+    color: #ffffff;
+}
+
 .totalCarteiras {
     margin-top: 18px;
     text-align: center;
