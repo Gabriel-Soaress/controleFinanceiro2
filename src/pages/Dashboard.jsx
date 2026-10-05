@@ -152,12 +152,12 @@ function Dashboard({ usuarioId, tema = 'escuro' }) {
                 const movs = await res.json();
 
                 // Soma apenas o que for tipo 'ENTRADA' e não for estorno
-                const totalEntradas = movs
+                const totalEntradas = Array.isArray(movs) ? movs
                     .filter(m =>
                         m.tipo === 'ENTRADA' &&
-                        !m.descricao.toLowerCase().includes('estorno')
+                        !String(m.descricao || '').toLowerCase().includes('estorno')
                     )
-                    .reduce((acc, m) => acc + Number(m.valor), 0);
+                    .reduce((acc, m) => acc + Number(m.valor || 0), 0) : 0;
 
                 // Calcular SAÍDAS: Contas que foram pagas no período selecionado
                 const totalSaidas = listaContas
@@ -245,27 +245,47 @@ function Dashboard({ usuarioId, tema = 'escuro' }) {
 
     const adicionarSaldo = async (dadosDoModal) => {
         try {
-            const resposta = await fetch(`${API_BASE_URL}/movimentacoes/entrada`,{
+            const resposta = await fetch(`${API_BASE_URL}/movimentacoes/entrada`, {
                 method: 'POST',
-                headers:{
+                headers: {
                     'Content-Type': 'application/json',
                     'user-id': usuarioId // <--- IMPORTANTE
                 },
                 body: JSON.stringify(dadosDoModal)
             });
 
-            if(!resposta.ok) throw new Error('Erro ao depositar');
+            if (!resposta.ok) {
+                const erroData = await resposta.json().catch(() => ({}));
+                throw new Error(erroData.erro || erroData.mensagem || 'Erro ao depositar');
+            }
 
             const resCarteiras = await fetch(`${API_BASE_URL}/carteiras`, { headers: { 'user-id': usuarioId } });
-            setMinhasCarteiras(await resCarteiras.json());
+            if (resCarteiras.ok) {
+                setMinhasCarteiras(await resCarteiras.json());
+            }
 
             // Atualizar resumo também
-            const resumoFake = {...filtros}; // Truque pra forçar re-render do resumo
-            setFiltros(resumoFake);
+            setFiltros(prev => ({ ...prev }));
 
-            console.log("Saldo Adicionado com sucesso!");
-        }catch(erro) {
-            console.error(erro);
+            setModalMsg({
+                aberta: true,
+                tipo: 'sucesso',
+                titulo: 'Entrada Confirmada',
+                mensagem: 'O saldo foi adicionado à carteira com sucesso!',
+                aoConfirmar: () => setModalMsg(prev => ({ ...prev, aberta: false }))
+            });
+
+            return true;
+        } catch (erro) {
+            console.error("Erro ao adicionar saldo:", erro);
+            setModalMsg({
+                aberta: true,
+                tipo: 'erro',
+                titulo: 'Erro ao Adicionar Saldo',
+                mensagem: erro.message || 'Não foi possível registrar a entrada. Verifique a conexão.',
+                aoConfirmar: () => setModalMsg(prev => ({ ...prev, aberta: false }))
+            });
+            throw erro;
         }
     };
 

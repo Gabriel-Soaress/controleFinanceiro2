@@ -273,24 +273,54 @@ router.delete('/carteiras/:id', async (req, res) => {
 // --- 10. ADICIONAR SALDO (ENTRADA) ---
 router.post('/movimentacoes/entrada', async (req, res) => {
     const usuario_id = req.headers['user-id'];
-    const { carteira_id, valor, data, descricao } = req.body;
+    const { carteira_id, valor, data, data_pagamento, descricao } = req.body;
 
+    if (!usuario_id) {
+        return res.status(401).json({ erro: "Usuário não autenticado" });
+    }
+
+    const valorNum = parseFloat(valor);
+    if (isNaN(valorNum) || valorNum <= 0) {
+        return res.status(400).json({ erro: "O valor da entrada deve ser maior que zero" });
+    }
+
+    const carteiraIdNum = parseInt(carteira_id);
+    if (isNaN(carteiraIdNum)) {
+        return res.status(400).json({ erro: "Selecione uma carteira válida" });
+    }
+
+    const dataFinal = data_pagamento || data || new Date().toISOString().split('T')[0];
+    const descFinal = (descricao && String(descricao).trim()) ? String(descricao).trim() : 'Entrada de saldo';
+
+    const client = await pool.connect();
     try {
-        await pool.query(
-            'UPDATE carteiras SET saldo = saldo + $1 WHERE id = $2 AND usuario_id = $3',
-            [valor, carteira_id, usuario_id]
+        await client.query('BEGIN');
+
+        const updateCarteira = await client.query(
+            'UPDATE carteiras SET saldo = saldo + $1 WHERE id = $2 AND usuario_id = $3 RETURNING *',
+            [valorNum, carteiraIdNum, usuario_id]
         );
+
+        if (updateCarteira.rowCount === 0) {
+            await client.query('ROLLBACK');
+            return res.status(404).json({ erro: "Carteira não encontrada ou não pertence ao usuário" });
+        }
 
         const sqlMov = `
             INSERT INTO movimentacoes (usuario_id, conta_id, carteira_id, valor, tipo, descricao, data_pagamento)
             VALUES ($1, null, $2, $3, 'ENTRADA', $4, $5)
+            RETURNING *;
         `;
-        await pool.query(sqlMov, [usuario_id, carteira_id, valor, descricao, data]);
+        const movRes = await client.query(sqlMov, [usuario_id, carteiraIdNum, valorNum, descFinal, dataFinal]);
 
-        res.json({ mensagem: "Depósito realizado com sucesso!" });
+        await client.query('COMMIT');
+        res.json({ mensagem: "Depósito realizado com sucesso!", movimentacao: movRes.rows[0], carteira: updateCarteira.rows[0] });
     } catch (erro) {
+        await client.query('ROLLBACK');
         console.error("Erro no depósito:", erro);
-        res.status(500).json({ erro: "Erro ao adicionar saldo" });
+        res.status(500).json({ erro: "Erro ao adicionar saldo na carteira" });
+    } finally {
+        client.release();
     }
 });
 
