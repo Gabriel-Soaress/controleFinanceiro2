@@ -1,6 +1,6 @@
 import styles from '../modules/ResumoFiltros.module.css';
 
-function ResumoFiltros({ entradas = 0, saidas = 0 }) {
+function ResumoFiltros({ entradas = 0, saidas = 0, emAberto = 0 }) {
 
     // Calculamos o saldo aqui mesmo
     const saldo = entradas - saidas;
@@ -29,7 +29,7 @@ function ResumoFiltros({ entradas = 0, saidas = 0 }) {
 
     // Função auxiliar para formatar dinheiro (R$ 1.000,00)
     const formatarMoeda = (valor) => {
-        return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        return Number(valor || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
     };
 
     return (
@@ -49,7 +49,6 @@ function ResumoFiltros({ entradas = 0, saidas = 0 }) {
             {/* BLOCO 2: BALANÇO (Dinâmico) */}
             <div className={styles.bloco}>
                 <span className={styles.titulo}>Balanço (entradas - saídas)</span>
-                {/* Aqui aplicamos a classe e o ícone calculados lá em cima */}
                 <div className={`${styles.valor} ${estiloSaldo.classeCor}`}>
                     {formatarMoeda(saldo)}
                     <i className={`fa-solid ${estiloSaldo.icone} ${styles.icone}`}></i>
@@ -64,6 +63,17 @@ function ResumoFiltros({ entradas = 0, saidas = 0 }) {
                 <div className={`${styles.valor} ${styles.textoVermelho}`}>
                     {formatarMoeda(saidas)}
                     <i className={`fa-solid fa-chevron-down ${styles.icone}`}></i>
+                </div>
+            </div>
+
+            <div className={styles.divisor}></div>
+
+            {/* BLOCO 4: CONTAS EM ABERTO NO PERÍODO (Âmbar) */}
+            <div className={styles.bloco}>
+                <span className={styles.titulo}>Em aberto no período</span>
+                <div className={`${styles.valor} ${styles.textoAmbar}`}>
+                    {formatarMoeda(emAberto)}
+                    <i className={`fa-solid fa-clock ${styles.icone}`}></i>
                 </div>
             </div>
 

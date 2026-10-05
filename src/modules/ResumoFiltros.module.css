@@ -11,6 +11,7 @@
     display: flex;
     justify-content: space-around;
     align-items: center;
+    gap: 10px;
 }
 
 .bloco {
@@ -18,28 +19,30 @@
     flex-direction: column;
     align-items: center;
     gap: 0.5rem;
-    width: 30%;
+    flex: 1;
 }
 
 .titulo {
     color: #94a3b8;
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.6px;
+    text-align: center;
+    white-space: nowrap;
 }
 
 .valor {
-    font-size: 1.8rem;
+    font-size: 1.6rem;
     font-weight: 700;
     letter-spacing: -0.5px;
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
 }
 
 .icone {
-    font-size: 1.1rem;
+    font-size: 1rem;
 }
 
 /* --- DIVISÓRIA VERTICAL --- */
@@ -47,6 +50,7 @@
     width: 1px;
     height: 48px;
     background: linear-gradient(180deg, transparent, rgba(255, 255, 255, 0.12), transparent);
+    flex-shrink: 0;
 }
 
 /* --- CORES UTILITÁRIAS MODERNAS --- */
@@ -60,6 +64,29 @@
     text-shadow: 0 0 20px rgba(239, 68, 68, 0.2);
 }
 
+.textoAmbar {
+    color: #f59e0b;
+    text-shadow: 0 0 20px rgba(245, 158, 11, 0.2);
+}
+
 .textoNeutro {
     color: #f8fafc;
+}
+
+:global(.modo-claro) .containerResumo {
+    background: #ffffff;
+    border-color: #e2e8f0;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+}
+
+:global(.modo-claro) .titulo {
+    color: #64748b;
+}
+
+:global(.modo-claro) .divisor {
+    background: linear-gradient(180deg, transparent, rgba(0, 0, 0, 0.1), transparent);
+}
+
+:global(.modo-claro) .textoNeutro {
+    color: #0f172a;
 }

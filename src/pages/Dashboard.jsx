@@ -66,7 +66,8 @@ function Dashboard({ usuarioId, tema = 'escuro' }) {
 
     const [resumoValores, setResumoValores] = useState({
         entradas: 0,
-        saidas: 0
+        saidas: 0,
+        emAberto: 0
     });
 
     const saldoTotal = minhasCarteiras.reduce((acumulator, item) =>{
@@ -172,7 +173,22 @@ function Dashboard({ usuarioId, tema = 'escuro' }) {
                     })
                     .reduce((acc, c) => acc + Number(c.valor_original), 0);
 
-                setResumoValores({ entradas: totalEntradas, saidas: totalSaidas });
+                // Calcular CONTAS EM ABERTO no período selecionado
+                const totalEmAberto = listaContas
+                    .filter(c => {
+                        if (c.status === 'PAGO') return false;
+                        const dataRef = c.emissao || c.vencimento;
+                        const bateData = (!filtros.inicio || dataRef >= filtros.inicio) &&
+                                         (!filtros.fim || dataRef <= filtros.fim);
+                        return bateData;
+                    })
+                    .reduce((acc, c) => acc + Number(c.valor || 0), 0);
+
+                setResumoValores({
+                    entradas: totalEntradas,
+                    saidas: totalSaidas,
+                    emAberto: totalEmAberto
+                });
 
             } catch (erro) {
                 console.error("Erro ao calcular resumo:", erro);
@@ -536,6 +552,7 @@ function Dashboard({ usuarioId, tema = 'escuro' }) {
             <ResumoFiltros
                 entradas={resumoValores.entradas}
                 saidas={resumoValores.saidas}
+                emAberto={resumoValores.emAberto}
             />
 
             {/* 3. TABELA DE CONTAS */}
