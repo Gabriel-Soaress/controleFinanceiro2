@@ -103,17 +103,42 @@
     font-size: 1.05rem;
 }
 
+.acoesItemCarteira {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.btnEditarSaldo {
+    background: rgba(59, 130, 246, 0.15);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    color: #60a5fa;
+    border-radius: 6px;
+    padding: 4px 8px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.btnEditarSaldo:hover {
+    background: rgba(59, 130, 246, 0.3);
+    color: #ffffff;
+}
+
 .btnZerarItemCarteira {
     background: rgba(239, 68, 68, 0.15);
     border: 1px solid rgba(239, 68, 68, 0.3);
     color: #f87171;
     border-radius: 6px;
-    padding: 3px 8px;
-    font-size: 0.72rem;
+    padding: 4px 8px;
+    font-size: 0.75rem;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.2s;
-    margin-left: 8px;
     display: inline-flex;
     align-items: center;
     gap: 4px;
@@ -121,6 +146,64 @@
 
 .btnZerarItemCarteira:hover {
     background: rgba(239, 68, 68, 0.3);
+    color: #ffffff;
+}
+
+/* Edição inline do saldo */
+.formEdicaoSaldo {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px dashed rgba(255, 255, 255, 0.1);
+}
+
+.inputEdicaoSaldo {
+    background: #0f172a;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 6px;
+    padding: 6px 10px;
+    color: #f8fafc;
+    font-size: 0.85rem;
+    flex: 1;
+    outline: none;
+}
+
+.inputEdicaoSaldo:focus {
+    border-color: #10b981;
+}
+
+.btnSalvarEdicao {
+    background: #10b981;
+    border: none;
+    color: #ffffff;
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btnSalvarEdicao:hover {
+    background: #059669;
+}
+
+.btnCancelarEdicao {
+    background: #334155;
+    border: none;
+    color: #94a3b8;
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-size: 0.78rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btnCancelarEdicao:hover {
+    background: #475569;
     color: #ffffff;
 }
 
