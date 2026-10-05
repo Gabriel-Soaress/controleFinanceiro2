@@ -370,16 +370,15 @@ router.post('/carteiras/ajustar-saldo', async (req, res) => {
             [novoSaldoNum, carteiraIdNum, usuario_id]
         );
 
-        // Se houve diferença de valor, gera uma movimentação de ajuste para auditoria/relatórios
+        // Se houve diferença de valor, gera uma movimentação de auditoria/ajuste sem inflar receitas operacionais
         if (Math.abs(diferenca) > 0.001) {
-            const tipoMov = diferenca > 0 ? 'ENTRADA' : 'SAIDA';
             const valorMov = Math.abs(diferenca);
             const descMov = `${motivoFinal} (${diferenca > 0 ? '+' : '-'}${valorMov.toFixed(2)})`;
 
             await client.query(
                 `INSERT INTO movimentacoes (usuario_id, conta_id, carteira_id, valor, tipo, descricao, data_pagamento)
                  VALUES ($1, null, $2, $3, $4, $5, $6)`,
-                [usuario_id, carteiraIdNum, valorMov, tipoMov, descMov, dataFinal]
+                [usuario_id, carteiraIdNum, valorMov, 'AJUSTE', descMov, dataFinal]
             );
         }
 

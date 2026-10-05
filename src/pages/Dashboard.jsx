@@ -151,11 +151,13 @@ function Dashboard({ usuarioId, tema = 'escuro' }) {
                 const res = await fetch(url, { headers: { 'user-id': usuarioId } });
                 const movs = await res.json();
 
-                // Soma apenas o que for tipo 'ENTRADA' e não for estorno
+                // Soma apenas o que for tipo 'ENTRADA' e não for estorno, ajuste ou zeramento
                 const totalEntradas = Array.isArray(movs) ? movs
                     .filter(m =>
                         m.tipo === 'ENTRADA' &&
-                        !String(m.descricao || '').toLowerCase().includes('estorno')
+                        !String(m.descricao || '').toLowerCase().includes('estorno') &&
+                        !String(m.descricao || '').toLowerCase().includes('ajuste') &&
+                        !String(m.descricao || '').toLowerCase().includes('zeramento')
                     )
                     .reduce((acc, m) => acc + Number(m.valor || 0), 0) : 0;
 

@@ -90,10 +90,12 @@ function RelatorioImpressao({
         return () => { cancelado = true; };
     }, [usuarioId, dataInicio, dataFim]);
 
-    // 1. ENTRADAS: Movimentações do tipo ENTRADA (sem estornos)
+    // 1. ENTRADAS: Movimentações do tipo ENTRADA (sem estornos, ajustes ou zeramentos)
     const listaEntradas = movimentacoes.filter(m =>
         m.tipo === 'ENTRADA' &&
-        !String(m.descricao || '').toLowerCase().includes('estorno')
+        !String(m.descricao || '').toLowerCase().includes('estorno') &&
+        !String(m.descricao || '').toLowerCase().includes('ajuste') &&
+        !String(m.descricao || '').toLowerCase().includes('zeramento')
     );
     const totalEntradas = listaEntradas.reduce((acc, m) => acc + Number(m.valor || 0), 0);
 
