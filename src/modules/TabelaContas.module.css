@@ -319,6 +319,136 @@
     border-color: #fde68a;
 }
 
+.itemSugestaoSemPix {
+    font-size: 0.72rem;
+    color: #64748b;
+    font-style: italic;
+}
+
+.itemSugestaoAvulso {
+    padding: 8px 14px;
+    font-size: 0.78rem;
+    color: #94a3b8;
+    background-color: #111827;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: background 0.15s ease;
+}
+
+.itemSugestaoAvulso:hover {
+    background-color: #1e293b;
+    color: #f8fafc;
+}
+
+:global(body.modo-claro) .itemSugestaoAvulso {
+    background-color: #f8fafc;
+    color: #64748b;
+    border-top: 1px solid #e2e8f0;
+}
+
+:global(body.modo-claro) .itemSugestaoAvulso:hover {
+    background-color: #f1f5f9;
+    color: #0f172a;
+}
+
+/* Indicadores de Vínculo de Contato no Formulário */
+.statusVinculo {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 4px;
+    flex-wrap: wrap;
+}
+
+.badgeVinculoContato {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: rgba(16, 185, 129, 0.15);
+    border: 1px solid rgba(16, 185, 129, 0.35);
+    color: #34d399;
+    font-size: 0.72rem;
+    padding: 2px 8px;
+    border-radius: 6px;
+}
+
+.badgeVinculoContato strong {
+    color: #ffffff;
+}
+
+.pixVinculadoMini {
+    color: #6ee7b7;
+    font-family: monospace;
+    font-size: 0.7rem;
+    margin-left: 4px;
+}
+
+.btnDesvincularMini {
+    background: transparent;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: #f87171;
+    font-size: 0.68rem;
+    padding: 2px 6px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+}
+
+.btnDesvincularMini:hover {
+    background: rgba(239, 68, 68, 0.2);
+    color: #ffffff;
+}
+
+.badgeAvulso {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(148, 163, 184, 0.12);
+    border: 1px solid rgba(148, 163, 184, 0.25);
+    color: #94a3b8;
+    font-size: 0.72rem;
+    padding: 2px 8px;
+    border-radius: 6px;
+}
+
+:global(body.modo-claro) .badgeVinculoContato {
+    background: #d1fae5;
+    border-color: #a7f3d0;
+    color: #065f46;
+}
+
+:global(body.modo-claro) .badgeVinculoContato strong {
+    color: #047857;
+}
+
+:global(body.modo-claro) .badgeAvulso {
+    background: #f1f5f9;
+    border-color: #e2e8f0;
+    color: #64748b;
+}
+
+.containerNomeConta {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+}
+
+.iconeContatoVinculado {
+    color: #3b82f6;
+    font-size: 0.85rem;
+    display: inline-flex;
+    align-items: center;
+    cursor: help;
+    flex-shrink: 0;
+}
+
 .tituloColuna {
     color: #64748b;
     font-size: 0.75rem;

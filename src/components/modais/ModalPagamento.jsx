@@ -19,29 +19,38 @@ function ModalPagamento({ conta, aoFechar, carteiras = [], contatos = [], aoConf
     const [classeMensagem, setClasseMensagem] = useState('');
     const [modalAlertaAberto, setModalAlertaAberto] = useState(false);
     const [pixCopiado, setPixCopiado] = useState(false);
+    const [modoAlterarContato, setModoAlterarContato] = useState(false);
 
-    // Busca se a conta pertence a um contato registrado com chave PIX
-    const contatoRegistrado = useMemo(() => {
-        if (!conta || !conta.nome || !contatos || contatos.length === 0) return null;
+    // 1. Identificação segura do contato vinculado
+    const contatoIdentificado = useMemo(() => {
+        if (!conta || !contatos || contatos.length === 0) return null;
+
+        // Prioridade 1: ID direto do contato registrado na conta
+        if (conta.contato_id) {
+            const matchId = contatos.find(c => Number(c.id) === Number(conta.contato_id));
+            if (matchId) return matchId;
+        }
+
+        // Prioridade 2: Correspondência 100% EXATA pelo nome cadastrado
         const nomeConta = (conta.nome || '').trim().toUpperCase();
+        if (nomeConta) {
+            const matchExato = contatos.find(c => (c.nome || '').trim().toUpperCase() === nomeConta);
+            if (matchExato) return matchExato;
+        }
 
-        // 1. Correspondência exata
-        let match = contatos.find(c => (c.nome || '').trim().toUpperCase() === nomeConta);
-        if (match && match.chave_pix) return match;
-
-        // 2. Correspondência parcial inteligente
-        match = contatos.find(c => {
-            const cNome = (c.nome || '').trim().toUpperCase();
-            return cNome && (nomeConta.includes(cNome) || cNome.includes(nomeConta));
-        });
-        if (match && match.chave_pix) return match;
-
+        // NUNCA usar match parcial ou substring (includes) para evitar transferências para terceiros incorretos!
         return null;
     }, [conta, contatos]);
 
+    const [contatoAtivo, setContatoAtivo] = useState(contatoIdentificado);
+
+    useEffect(() => {
+        setContatoAtivo(contatoIdentificado);
+    }, [contatoIdentificado]);
+
     const copiarPix = () => {
-        if (!contatoRegistrado?.chave_pix) return;
-        navigator.clipboard.writeText(contatoRegistrado.chave_pix);
+        if (!contatoAtivo?.chave_pix) return;
+        navigator.clipboard.writeText(contatoAtivo.chave_pix);
         setPixCopiado(true);
         setTimeout(() => setPixCopiado(false), 2000);
     };
@@ -115,38 +124,126 @@ function ModalPagamento({ conta, aoFechar, carteiras = [], contatos = [], aoConf
                     PAGAR: {conta.nome}
                 </h2>
 
-                {contatoRegistrado && contatoRegistrado.chave_pix && (
+                {/* ÁREA DE PIX SEGURA */}
+                {contatoAtivo ? (
                     <div className={styles.cardPix}>
                         <div className={styles.cardPixHeader}>
                             <div className={styles.cardPixTitulo}>
                                 <i className="fa-brands fa-pix"></i>
-                                <span>Chave PIX Cadastrada</span>
+                                <span>Chave PIX do Favorecido</span>
                             </div>
-                            <span className={`${styles.badgeTipoContato} ${styles['badge_' + (contatoRegistrado.tipo || 'fornecedor')]}`}>
-                                {contatoRegistrado.tipo === 'funcionario' ? 'Funcionário' : contatoRegistrado.tipo === 'terceirizado' ? 'Terceirizado' : 'Fornecedor'}
-                            </span>
-                        </div>
-                        <div className={styles.cardPixCorpo}>
-                            <span className={styles.chavePixTexto} title={contatoRegistrado.chave_pix}>
-                                {contatoRegistrado.chave_pix}
-                            </span>
-                            <button
-                                type="button"
-                                className={`${styles.btnCopiarPixModal} ${pixCopiado ? styles.btnCopiadoModal : ''}`}
-                                onClick={copiarPix}
-                                title="Copiar Chave PIX"
-                            >
-                                {pixCopiado ? (
-                                    <>
-                                        <i className="fa-solid fa-check"></i> Copiado!
-                                    </>
-                                ) : (
-                                    <>
-                                        <i className="fa-solid fa-copy"></i> Copiar PIX
-                                    </>
+                            <div className={styles.headerAcoesPix}>
+                                <span className={`${styles.badgeTipoContato} ${styles['badge_' + (contatoAtivo.tipo || 'fornecedor')]}`}>
+                                    {contatoAtivo.tipo === 'funcionario' ? 'Funcionário' : contatoAtivo.tipo === 'terceirizado' ? 'Terceirizado' : 'Fornecedor'}
+                                </span>
+                                {contatos && contatos.length > 1 && (
+                                    <button
+                                        type="button"
+                                        className={styles.btnTrocarContato}
+                                        onClick={() => setModoAlterarContato(!modoAlterarContato)}
+                                        title="Trocar contato vinculado"
+                                    >
+                                        <i className="fa-solid fa-arrows-rotate"></i> {modoAlterarContato ? 'Fechar' : 'Trocar'}
+                                    </button>
                                 )}
-                            </button>
+                            </div>
                         </div>
+
+                        {/* DESTAQUE DO NOME DO BENEFICIÁRIO PARA CONFERÊNCIA ANTES DO PAGAMENTO */}
+                        <div className={styles.beneficiarioInfo}>
+                            <div className={styles.beneficiarioLabel}>
+                                <i className="fa-solid fa-user-check"></i> Beneficiário cadastrado:
+                            </div>
+                            <div className={styles.beneficiarioNome}>
+                                {contatoAtivo.nome}
+                            </div>
+                        </div>
+
+                        {contatoAtivo.chave_pix ? (
+                            <div className={styles.cardPixCorpo}>
+                                <span className={styles.chavePixTexto} title={contatoAtivo.chave_pix}>
+                                    {contatoAtivo.chave_pix}
+                                </span>
+                                <button
+                                    type="button"
+                                    className={`${styles.btnCopiarPixModal} ${pixCopiado ? styles.btnCopiadoModal : ''}`}
+                                    onClick={copiarPix}
+                                    title="Copiar Chave PIX"
+                                >
+                                    {pixCopiado ? (
+                                        <>
+                                            <i className="fa-solid fa-check"></i> Copiado!
+                                        </>
+                                    ) : (
+                                        <>
+                                            <i className="fa-solid fa-copy"></i> Copiar PIX
+                                        </>
+                                    )}
+                                </button>
+                            </div>
+                        ) : (
+                            <div className={styles.avisoSemChavePix}>
+                                <i className="fa-solid fa-circle-exclamation"></i> O contato {contatoAtivo.nome} não possui chave PIX cadastrada.
+                            </div>
+                        )}
+
+                        {modoAlterarContato && (
+                            <div className={styles.seletorTrocaContainer}>
+                                <label className={styles.labelSeletor}>Mudar para outro contato da sua agenda:</label>
+                                <select
+                                    className={styles.selectTroca}
+                                    value={contatoAtivo.id}
+                                    onChange={(e) => {
+                                        const novo = contatos.find(c => Number(c.id) === Number(e.target.value));
+                                        if (novo) setContatoAtivo(novo);
+                                        setModoAlterarContato(false);
+                                    }}
+                                >
+                                    {contatos.map(c => (
+                                        <option key={c.id} value={c.id}>
+                                            {c.nome} {c.chave_pix ? `(PIX: ${c.chave_pix})` : '(Sem PIX)'}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                        )}
+
+                        <div className={styles.avisoSeguranca}>
+                            <i className="fa-solid fa-shield-halved"></i> Confira se o nome <strong>{contatoAtivo.nome}</strong> confere com o destinatário no aplicativo do seu banco antes de transferir.
+                        </div>
+                    </div>
+                ) : (
+                    <div className={styles.cardSemContato}>
+                        <div className={styles.semContatoHeader}>
+                            <div className={styles.semContatoTitulo}>
+                                <i className="fa-solid fa-user-pen"></i>
+                                <span>Favorecido avulso / Sem chave PIX</span>
+                            </div>
+                        </div>
+                        <p className={styles.semContatoDesc}>
+                            Esta conta foi cadastrada sem contato vinculado da sua agenda ("{conta.nome}").
+                        </p>
+                        {contatos && contatos.length > 0 && (
+                            <div className={styles.vincularContatoRapido}>
+                                <label className={styles.labelVincularRapido}>Deseja carregar o PIX de um contato cadastrado?</label>
+                                <select
+                                    className={styles.selectVincularRapido}
+                                    defaultValue=""
+                                    onChange={(e) => {
+                                        if (!e.target.value) return;
+                                        const c = contatos.find(item => Number(item.id) === Number(e.target.value));
+                                        if (c) setContatoAtivo(c);
+                                    }}
+                                >
+                                    <option value="">Selecione um contato para exibir a chave PIX...</option>
+                                    {contatos.map(c => (
+                                        <option key={c.id} value={c.id}>
+                                            {c.nome} {c.chave_pix ? `(PIX: ${c.chave_pix})` : '(Sem PIX)'}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                        )}
                     </div>
                 )}
 

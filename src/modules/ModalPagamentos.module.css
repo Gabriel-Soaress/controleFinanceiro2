@@ -267,6 +267,175 @@
     background: #047857 !important;
 }
 
+/* Informações do Beneficiário em destaque */
+.beneficiarioInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    background: rgba(16, 185, 129, 0.08);
+    padding: 8px 12px;
+    border-radius: 8px;
+    border-left: 3px solid #10b981;
+}
+
+.beneficiarioLabel {
+    font-size: 0.75rem;
+    color: #94a3b8;
+    text-transform: uppercase;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.beneficiarioNome {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #f8fafc;
+    letter-spacing: 0.3px;
+}
+
+.headerAcoesPix {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btnTrocarContato {
+    background: transparent;
+    border: 1px solid rgba(148, 163, 184, 0.3);
+    color: #94a3b8;
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 0.72rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.btnTrocarContato:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: #f1f5f9;
+    border-color: rgba(255, 255, 255, 0.4);
+}
+
+.seletorTrocaContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-top: 4px;
+}
+
+.labelSeletor {
+    font-size: 0.75rem;
+    color: #cbd5e1;
+    font-weight: 600;
+}
+
+.selectTroca {
+    background: #0f172a;
+    border: 1px solid #334155;
+    color: #f8fafc;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    outline: none;
+}
+
+.selectTroca:focus {
+    border-color: #10b981;
+}
+
+.avisoSemChavePix {
+    font-size: 0.85rem;
+    color: #f59e0b;
+    background: rgba(245, 158, 11, 0.1);
+    padding: 8px 12px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.avisoSeguranca {
+    font-size: 0.78rem;
+    color: #cbd5e1;
+    background: rgba(15, 23, 42, 0.4);
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: 1px dashed rgba(16, 185, 129, 0.3);
+    line-height: 1.4;
+}
+
+.avisoSeguranca strong {
+    color: #34d399;
+}
+
+/* Card para conta avulsa (sem contato vinculado) */
+.cardSemContato {
+    background: rgba(30, 41, 59, 0.5);
+    border: 1px solid rgba(148, 163, 184, 0.15);
+    border-radius: 12px;
+    padding: 12px 14px;
+    margin-bottom: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.semContatoHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.semContatoTitulo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #94a3b8;
+    font-size: 0.82rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.semContatoDesc {
+    font-size: 0.82rem;
+    color: #94a3b8;
+    margin: 0;
+    line-height: 1.35;
+}
+
+.vincularContatoRapido {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-top: 4px;
+}
+
+.labelVincularRapido {
+    font-size: 0.75rem;
+    color: #60a5fa;
+    font-weight: 600;
+}
+
+.selectVincularRapido {
+    background: #0f172a;
+    border: 1px solid #334155;
+    color: #f8fafc;
+    padding: 7px 10px;
+    border-radius: 6px;
+    font-size: 0.82rem;
+    outline: none;
+    cursor: pointer;
+}
+
+.selectVincularRapido:focus {
+    border-color: #3b82f6;
+}
+
 :global(.modo-claro) .cardPix {
     background: #f0fdf4;
     border-color: #bbf7d0;
@@ -279,4 +448,43 @@
 
 :global(.modo-claro) .chavePixTexto {
     color: #0f172a;
+}
+
+:global(.modo-claro) .beneficiarioInfo {
+    background: #e6f4ea;
+    border-left-color: #10b981;
+}
+
+:global(.modo-claro) .beneficiarioNome {
+    color: #0f172a;
+}
+
+:global(.modo-claro) .beneficiarioLabel {
+    color: #475569;
+}
+
+:global(.modo-claro) .cardSemContato {
+    background: #f8fafc;
+    border-color: #e2e8f0;
+}
+
+:global(.modo-claro) .semContatoDesc {
+    color: #64748b;
+}
+
+:global(.modo-claro) .selectTroca,
+:global(.modo-claro) .selectVincularRapido {
+    background: #ffffff;
+    border-color: #cbd5e1;
+    color: #0f172a;
+}
+
+:global(.modo-claro) .avisoSeguranca {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+    color: #334155;
+}
+
+:global(.modo-claro) .avisoSeguranca strong {
+    color: #059669;
 }

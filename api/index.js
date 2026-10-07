@@ -56,7 +56,14 @@ router.get('/contas', async (req, res) => {
     }
     try {
         const consulta = await pool.query(
-            'SELECT * FROM contas WHERE usuario_id = $1 ORDER BY id DESC',
+            `SELECT c.*, 
+                    ct.nome AS contato_nome, 
+                    ct.chave_pix AS contato_chave_pix, 
+                    ct.tipo AS contato_tipo
+             FROM contas c
+             LEFT JOIN contatos ct ON ct.id = c.contato_id AND ct.usuario_id = c.usuario_id
+             WHERE c.usuario_id = $1 
+             ORDER BY c.id DESC`,
             [usuario_id]
         );
         res.json(consulta.rows);
@@ -73,7 +80,7 @@ router.post('/contas', async (req, res) => {
         return res.status(401).json({ erro: 'Usuário não autenticado' });
     }
 
-    let { numero_boleto, categoria_id, nome, descricao, valor, emissao, vencimento } = req.body;
+    let { numero_boleto, categoria_id, nome, descricao, valor, emissao, vencimento, contato_id } = req.body;
 
     if (!nome || !nome.trim()) {
         return res.status(400).json({ erro: 'O nome da conta é obrigatório' });
@@ -88,12 +95,13 @@ router.post('/contas', async (req, res) => {
         emissao = new Date().toISOString().split('T')[0];
     }
     const catId = categoria_id ? parseInt(categoria_id) : 1;
+    const contatoIdValido = contato_id ? parseInt(contato_id) : null;
 
     const sql = `
         INSERT INTO contas
-            (usuario_id, categoria_id, referencia, nome, descricao, valor, valor_original, data_emissao, data_vencimento, status)
+            (usuario_id, categoria_id, referencia, nome, descricao, valor, valor_original, data_emissao, data_vencimento, status, contato_id)
         VALUES
-            ($1, $2, $3, $4, $5, $6, $7, $8, $9, 'PENDENTE')
+            ($1, $2, $3, $4, $5, $6, $7, $8, $9, 'PENDENTE', $10)
         RETURNING *;
     `;
 
@@ -107,9 +115,23 @@ router.post('/contas', async (req, res) => {
             Number(valor),
             Number(valor),
             emissao,
-            vencimento
+            vencimento,
+            contatoIdValido
         ]);
-        res.status(201).json(resultado.rows[0]);
+
+        const contaCriada = resultado.rows[0];
+
+        // Se houver contato_id, busca os dados do contato para retornar completo
+        if (contaCriada.contato_id) {
+            const resContato = await pool.query('SELECT nome, chave_pix, tipo FROM contatos WHERE id = $1', [contaCriada.contato_id]);
+            if (resContato.rows.length > 0) {
+                contaCriada.contato_nome = resContato.rows[0].nome;
+                contaCriada.contato_chave_pix = resContato.rows[0].chave_pix;
+                contaCriada.contato_tipo = resContato.rows[0].tipo;
+            }
+        }
+
+        res.status(201).json(contaCriada);
     } catch (erro) {
         console.error("Erro ao criar conta:", erro);
         res.status(500).json({ mensagem: 'Erro ao cadastrar conta' });
@@ -120,7 +142,7 @@ router.post('/contas', async (req, res) => {
 router.put('/contas/:id', async (req, res) => {
     const usuario_id = req.headers['user-id'];
     const idDaConta = req.params.id;
-    let { numero_boleto, categoria_id, nome, descricao, valor, emissao, vencimento } = req.body;
+    let { numero_boleto, categoria_id, nome, descricao, valor, emissao, vencimento, contato_id } = req.body;
 
     if (!nome || !nome.trim()) {
         return res.status(400).json({ erro: 'O nome da conta é obrigatório' });
@@ -135,6 +157,7 @@ router.put('/contas/:id', async (req, res) => {
         emissao = new Date().toISOString().split('T')[0];
     }
     const catId = categoria_id ? parseInt(categoria_id) : 1;
+    const contatoIdValido = contato_id ? parseInt(contato_id) : null;
 
     const sql = `
         UPDATE contas SET
@@ -145,8 +168,9 @@ router.put('/contas/:id', async (req, res) => {
             valor = $5,
             valor_original = $6,
             data_emissao = $7,
-            data_vencimento = $8
-        WHERE id = $9 AND usuario_id = $10
+            data_vencimento = $8,
+            contato_id = $9
+        WHERE id = $10 AND usuario_id = $11
         RETURNING *;
     `;
 
@@ -160,13 +184,26 @@ router.put('/contas/:id', async (req, res) => {
             Number(valor),
             emissao,
             vencimento,
+            contatoIdValido,
             idDaConta,
             usuario_id
         ]);
         if (contaAtualizada.rowCount === 0) {
             return res.status(404).json({ erro: 'Conta não encontrada ou não pertence ao usuário' });
         }
-        res.json(contaAtualizada.rows[0]);
+
+        const contaFinal = contaAtualizada.rows[0];
+
+        if (contaFinal.contato_id) {
+            const resContato = await pool.query('SELECT nome, chave_pix, tipo FROM contatos WHERE id = $1', [contaFinal.contato_id]);
+            if (resContato.rows.length > 0) {
+                contaFinal.contato_nome = resContato.rows[0].nome;
+                contaFinal.contato_chave_pix = resContato.rows[0].chave_pix;
+                contaFinal.contato_tipo = resContato.rows[0].tipo;
+            }
+        }
+
+        res.json(contaFinal);
     } catch (erro) {
         console.error("Erro ao atualizar conta:", erro);
         res.status(500).json({ mensagem: 'Erro ao atualizar conta' });
