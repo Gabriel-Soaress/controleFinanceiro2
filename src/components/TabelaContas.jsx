@@ -345,7 +345,7 @@ function TabelaContas({
                 <div className={styles.cabecalhoTabela}>
                     <div className={`${styles.tituloColuna} ${styles.colunaId}`}>N° / REF</div>
                     <div className={`${styles.tituloColuna} ${styles.colunaCategoria}`}>CATEGORIA</div>
-                    <div className={`${styles.tituloColuna} ${styles.colunaNome}`}>NOME</div>
+                    <div className={`${styles.tituloColuna} ${styles.colunaNome}`}>CONTATO</div>
                     <div className={`${styles.tituloColuna} ${styles.colunaDesc}`}>DESCRIÇÃO</div>
                     <div className={`${styles.tituloColuna} ${styles.colunaValor}`}>VALOR</div>
                     <div className={`${styles.tituloColuna} ${styles.colunaData}`}>EMISSÃO</div>
@@ -393,11 +393,11 @@ function TabelaContas({
                                         setAlvoModalContato('nova');
                                         setModalContatoAberto(true);
                                     }}
-                                    title="Clique para selecionar da agenda ou digitar um favorecido avulso"
+                                    title="Clique para selecionar ou buscar um contato"
                                 >
                                     <div className={styles.conteudoBtnNome}>
                                         <i className="fa-solid fa-user-plus"></i>
-                                        <span>Selecionar Favorecido *</span>
+                                        <span>Contato *</span>
                                     </div>
                                     <i className="fa-solid fa-chevron-down" style={{ fontSize: '0.7rem', opacity: 0.5 }}></i>
                                 </button>
@@ -576,11 +576,11 @@ function TabelaContas({
                                                         setAlvoModalContato('edicao');
                                                         setModalContatoAberto(true);
                                                     }}
-                                                    title="Clique para selecionar da agenda ou digitar um favorecido avulso"
+                                                    title="Clique para selecionar ou buscar um contato"
                                                 >
                                                     <div className={styles.conteudoBtnNome}>
                                                         <i className="fa-solid fa-user-plus"></i>
-                                                        <span>Selecionar Favorecido *</span>
+                                                        <span>Contato *</span>
                                                     </div>
                                                     <i className="fa-solid fa-chevron-down" style={{ fontSize: '0.7rem', opacity: 0.5 }}></i>
                                                 </button>

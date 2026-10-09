@@ -309,6 +309,28 @@ function ModalSelecionarContato({
                                     value={busca}
                                     autoFocus
                                     onChange={(e) => setBusca(e.target.value)}
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter' && busca.trim()) {
+                                            if (contatosFiltrados.length === 1) {
+                                                const único = contatosFiltrados[0];
+                                                aoConfirmar({
+                                                    nome: único.nome,
+                                                    contato_id: único.id,
+                                                    chave_pix: único.chave_pix || '',
+                                                    tipo: único.tipo || 'fornecedor'
+                                                });
+                                                aoFechar();
+                                            } else if (contatosFiltrados.length === 0) {
+                                                aoConfirmar({
+                                                    nome: busca.trim().toUpperCase(),
+                                                    contato_id: null,
+                                                    chave_pix: '',
+                                                    tipo: ''
+                                                });
+                                                aoFechar();
+                                            }
+                                        }
+                                    }}
                                 />
                             </div>
 
@@ -354,7 +376,6 @@ function ModalSelecionarContato({
                                         type="button"
                                         className={styles.btnUsarAvulso}
                                         onClick={() => {
-                                            setNomeAvulso(busca.trim().toUpperCase());
                                             aoConfirmar({
                                                 nome: busca.trim().toUpperCase(),
                                                 contato_id: null,
@@ -384,17 +405,7 @@ function ModalSelecionarContato({
                                                     setModoVisao('novo');
                                                 }}
                                             >
-                                                <i className="fa-solid fa-plus"></i> Cadastrar "{busca.trim().toUpperCase() || 'Novo'}"
-                                            </button>
-                                            <button
-                                                type="button"
-                                                className={styles.btnAbrirAvulso}
-                                                onClick={() => {
-                                                    setNomeAvulso(busca.trim().toUpperCase());
-                                                    setModoVisao('avulso');
-                                                }}
-                                            >
-                                                <i className="fa-solid fa-pen-nib"></i> Usar como Avulso
+                                                <i className="fa-solid fa-plus"></i> Cadastrar "{busca.trim().toUpperCase() || 'Novo'}" na Agenda
                                             </button>
                                         </div>
                                     </div>
@@ -463,17 +474,6 @@ function ModalSelecionarContato({
                                     title="Adicionar um novo contato à agenda com PIX opcional"
                                 >
                                     <i className="fa-solid fa-plus"></i> Novo Contato
-                                </button>
-                                <button
-                                    type="button"
-                                    className={styles.btnAbrirAvulso}
-                                    onClick={() => {
-                                        setNomeAvulso(busca.trim() ? busca.trim().toUpperCase() : (nomeAtual || ''));
-                                        setModoVisao('avulso');
-                                    }}
-                                    title="Digitar um nome avulso sem salvar na agenda"
-                                >
-                                    <i className="fa-solid fa-pen-nib"></i> Favorecido Avulso
                                 </button>
                             </div>
 
