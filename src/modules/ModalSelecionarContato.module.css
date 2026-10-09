@@ -1,0 +1,550 @@
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(4px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 99999;
+    padding: 16px;
+    animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.modalBox {
+    background: #0f172a;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    width: 100%;
+    max-width: 580px;
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+    overflow: hidden;
+    position: relative;
+}
+
+.modalHeader {
+    padding: 18px 24px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.tituloModal {
+    margin: 0;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #f8fafc;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.tituloModal i {
+    color: #3b82f6;
+}
+
+.btnFechar {
+    background: transparent;
+    border: none;
+    color: #94a3b8;
+    font-size: 1.25rem;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btnFechar:hover {
+    color: #f8fafc;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.modalCorpo {
+    padding: 20px 24px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    flex: 1;
+}
+
+/* BARRA DE PESQUISA */
+.searchContainer {
+    position: relative;
+    width: 100%;
+}
+
+.searchIcon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #64748b;
+    font-size: 0.95rem;
+}
+
+.searchInput {
+    width: 100%;
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 10px;
+    padding: 10px 14px 10px 38px;
+    color: #f8fafc;
+    font-size: 0.9rem;
+    outline: none;
+    transition: all 0.2s ease;
+    box-sizing: border-box;
+}
+
+.searchInput:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+/* ABAS DE TIPO (FILTRO) */
+.abasTipo {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.abaBotao {
+    background: #1e293b;
+    border: 1px solid #334155;
+    color: #94a3b8;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.abaBotao:hover {
+    color: #f8fafc;
+    border-color: #475569;
+}
+
+.abaAtiva {
+    background: #3b82f6 !important;
+    border-color: #3b82f6 !important;
+    color: #ffffff !important;
+}
+
+/* LISTA DE CONTATOS */
+.listaContatos {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 260px;
+    overflow-y: auto;
+    padding-right: 4px;
+}
+
+.itemContato {
+    background: #1e293b;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.itemContato:hover {
+    background: #27354f;
+    border-color: rgba(59, 130, 246, 0.4);
+    transform: translateY(-1px);
+}
+
+.itemContatoSelecionado {
+    background: rgba(59, 130, 246, 0.15) !important;
+    border-color: #3b82f6 !important;
+    box-shadow: 0 0 0 1px #3b82f6;
+}
+
+.contatoInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    overflow: hidden;
+}
+
+.contatoNomeLinha {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.contatoNome {
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: #f8fafc;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.contatoPix {
+    font-size: 0.76rem;
+    color: #60a5fa;
+    font-family: monospace;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.contatoSemPix {
+    font-size: 0.74rem;
+    color: #64748b;
+    font-style: italic;
+}
+
+.badgeTipo {
+    font-size: 0.68rem;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 999px;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.badge_fornecedor {
+    background: rgba(59, 130, 246, 0.15);
+    color: #60a5fa;
+    border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.badge_funcionario {
+    background: rgba(16, 185, 129, 0.15);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.badge_terceirizado {
+    background: rgba(245, 158, 11, 0.15);
+    color: #fbbf24;
+    border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.iconeCheck {
+    color: #3b82f6;
+    font-size: 1.1rem;
+    margin-left: 6px;
+}
+
+/* LISTA VAZIA / OPÇÃO AVULSA */
+.boxVazio {
+    background: rgba(30, 41, 59, 0.4);
+    border: 1px dashed rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+    color: #94a3b8;
+    font-size: 0.88rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.boxOpcaoAvulsa {
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid #334155;
+    border-radius: 10px;
+    padding: 12px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.textoAvulso {
+    font-size: 0.84rem;
+    color: #cbd5e1;
+    margin: 0;
+}
+
+.textoAvulso strong {
+    color: #f8fafc;
+}
+
+.btnUsarAvulso {
+    background: #334155;
+    color: #f8fafc;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.btnUsarAvulso:hover {
+    background: #475569;
+}
+
+/* ÁREA DE CADASTRO NOVO CONTATO */
+.areaNovoContato {
+    background: #162032;
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    border-radius: 12px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    animation: fadeIn 0.2s ease-out;
+}
+
+.tituloNovoContato {
+    margin: 0;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #60a5fa;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.campoForm {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.labelForm {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #94a3b8;
+    text-transform: uppercase;
+}
+
+.inputForm {
+    background: #0f172a;
+    border: 1px solid #334155;
+    border-radius: 8px;
+    padding: 8px 12px;
+    color: #f8fafc;
+    font-size: 0.88rem;
+    outline: none;
+}
+
+.inputForm:focus {
+    border-color: #3b82f6;
+}
+
+.selectForm {
+    background: #0f172a;
+    border: 1px solid #334155;
+    border-radius: 8px;
+    padding: 8px 12px;
+    color: #f8fafc;
+    font-size: 0.88rem;
+    outline: none;
+}
+
+.dicaPix {
+    font-size: 0.72rem;
+    color: #64748b;
+    margin-top: 2px;
+}
+
+.acoesNovoContato {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 6px;
+}
+
+.btnCancelarNovo {
+    background: transparent;
+    border: 1px solid #475569;
+    color: #94a3b8;
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    cursor: pointer;
+}
+
+.btnSalvarNovo {
+    background: #10b981;
+    border: none;
+    color: #ffffff;
+    padding: 6px 16px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.btnSalvarNovo:hover {
+    background: #059669;
+}
+
+/* RODAPÉ DO MODAL */
+.modalFooter {
+    padding: 16px 24px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.btnAbrirNovoContato {
+    background: rgba(59, 130, 246, 0.15);
+    border: 1px solid rgba(59, 130, 246, 0.35);
+    color: #60a5fa;
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+}
+
+.btnAbrirNovoContato:hover {
+    background: rgba(59, 130, 246, 0.25);
+    color: #ffffff;
+}
+
+.footerAcoesDireita {
+    display: flex;
+    gap: 8px;
+}
+
+.btnCancelar {
+    background: transparent;
+    border: 1px solid #475569;
+    color: #cbd5e1;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btnCancelar:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.btnConfirmar {
+    background: #3b82f6;
+    border: none;
+    color: #ffffff;
+    padding: 8px 20px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.btnConfirmar:hover:not(:disabled) {
+    background: #2563eb;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+}
+
+.btnConfirmar:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* TEMA CLARO */
+:global(body.modo-claro) .modalBox {
+    background: #ffffff;
+    border-color: #e2e8f0;
+    box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.25);
+}
+
+:global(body.modo-claro) .modalHeader {
+    border-bottom-color: #e2e8f0;
+}
+
+:global(body.modo-claro) .tituloModal {
+    color: #0f172a;
+}
+
+:global(body.modo-claro) .searchInput {
+    background: #f8fafc;
+    border-color: #cbd5e1;
+    color: #0f172a;
+}
+
+:global(body.modo-claro) .abaBotao {
+    background: #f1f5f9;
+    border-color: #e2e8f0;
+    color: #64748b;
+}
+
+:global(body.modo-claro) .itemContato {
+    background: #f8fafc;
+    border-color: #e2e8f0;
+}
+
+:global(body.modo-claro) .itemContato:hover {
+    background: #f1f5f9;
+}
+
+:global(body.modo-claro) .itemContatoSelecionado {
+    background: #eff6ff !important;
+    border-color: #3b82f6 !important;
+}
+
+:global(body.modo-claro) .contatoNome {
+    color: #0f172a;
+}
+
+:global(body.modo-claro) .areaNovoContato {
+    background: #f8fafc;
+    border-color: #bfdbfe;
+}
+
+:global(body.modo-claro) .inputForm,
+:global(body.modo-claro) .selectForm {
+    background: #ffffff;
+    border-color: #cbd5e1;
+    color: #0f172a;
+}
+
+:global(body.modo-claro) .modalFooter {
+    border-top-color: #e2e8f0;
+}
+
+:global(body.modo-claro) .btnCancelar {
+    border-color: #cbd5e1;
+    color: #475569;
+}

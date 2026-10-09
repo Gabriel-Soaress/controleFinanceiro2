@@ -1,6 +1,7 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import styles from '../modules/TabelaContas.module.css';
 import ModalMensagem from './modais/ModalMensagem';
+import ModalSelecionarContato from './modais/ModalSelecionarContato';
 
 const PALETA_CORES = [
     { cor: '#38bdf8', bg: 'rgba(56, 189, 248, 0.15)', border: 'rgba(56, 189, 248, 0.35)' },
@@ -70,9 +71,11 @@ function calcularPrioridade(dataVencimento) {
 }
 
 function TabelaContas({
+    usuarioId,
     dados = [],
     categorias = [],
     contatos = [],
+    aoRecarregarContatos,
     aoClicarPagar,
     aoSalvarNovaConta,
     aoSalvarEdicao,
@@ -100,8 +103,9 @@ function TabelaContas({
         });
     };
 
-    // Estado do Autocomplete em Tempo Real
-    const [sugestoesAbertas, setSugestoesAbertas] = useState(false);
+    // Modal de Seleção de Favorecido / Contato
+    const [modalContatoAberto, setModalContatoAberto] = useState(false);
+    const [alvoModalContato, setAlvoModalContato] = useState('nova'); // 'nova' | 'edicao'
 
     const dataHoje = new Date().toISOString().split('T')[0];
 
@@ -116,63 +120,33 @@ function TabelaContas({
         contato_id: null
     });
 
-    // Filtro de sugestões em tempo real (máx. 5 a 6 contatos)
-    const sugestoesContatos = useMemo(() => {
-        const texto = (novaContaTemp.nome || '').trim().toLowerCase();
-        if (!texto || texto.length < 1) return [];
-        return contatos
-            .filter(c => c.nome && c.nome.toLowerCase().includes(texto))
-            .slice(0, 6);
-    }, [contatos, novaContaTemp.nome]);
-
-    const selecionarSugestao = (contato) => {
-        // Pré-seleciona categoria inteligente de acordo com o tipo
-        let catId = novaContaTemp.categoria_id;
-        if (contato.tipo === 'fornecedor') {
-            const cat = categorias.find(c => c.nome.toLowerCase().includes('fornecedor'));
-            if (cat) catId = cat.id;
-        } else if (contato.tipo === 'funcionario') {
-            const cat = categorias.find(c => c.nome.toLowerCase().includes('funcionar'));
-            if (cat) catId = cat.id;
-        } else if (contato.tipo === 'terceirizado') {
-            const cat = categorias.find(c => c.nome.toLowerCase().includes('terceriz') || c.nome.toLowerCase().includes('terceiriz'));
-            if (cat) catId = cat.id;
-        }
-
-        setNovaContaTemp(prev => ({
-            ...prev,
-            nome: contato.nome,
-            contato_id: contato.id,
-            categoria_id: catId || prev.categoria_id
-        }));
-        setSugestoesAbertas(false);
-    };
-
-    const contatoVinculadoNovaConta = useMemo(() => {
-        if (!novaContaTemp.contato_id) return null;
-        return contatos.find(c => Number(c.id) === Number(novaContaTemp.contato_id));
-    }, [novaContaTemp.contato_id, contatos]);
-
-    const desvincularContatoNovaConta = () => {
-        setNovaContaTemp(prev => ({ ...prev, contato_id: null }));
-    };
-
-    const mudarNomeNovaConta = (valor) => {
-        setNovaContaTemp(prev => {
-            let novoContatoId = prev.contato_id;
-            if (prev.contato_id) {
-                const c = contatos.find(item => Number(item.id) === Number(prev.contato_id));
-                if (c && c.nome !== valor.trim().toUpperCase()) {
-                    novoContatoId = null; // desvincula se o usuário alterou o nome
-                }
+    const lidarComConfirmacaoContato = (contatoEscolhido) => {
+        if (alvoModalContato === 'nova') {
+            let catId = novaContaTemp.categoria_id;
+            if (contatoEscolhido.tipo === 'fornecedor') {
+                const cat = categorias.find(c => c.nome.toLowerCase().includes('fornecedor'));
+                if (cat) catId = cat.id;
+            } else if (contatoEscolhido.tipo === 'funcionario') {
+                const cat = categorias.find(c => c.nome.toLowerCase().includes('funcionar'));
+                if (cat) catId = cat.id;
+            } else if (contatoEscolhido.tipo === 'terceirizado') {
+                const cat = categorias.find(c => c.nome.toLowerCase().includes('terceriz') || c.nome.toLowerCase().includes('terceiriz'));
+                if (cat) catId = cat.id;
             }
-            return {
+
+            setNovaContaTemp(prev => ({
                 ...prev,
-                nome: valor,
-                contato_id: novoContatoId
-            };
-        });
-        setSugestoesAbertas(true);
+                nome: contatoEscolhido.nome,
+                contato_id: contatoEscolhido.contato_id || null,
+                categoria_id: catId || prev.categoria_id
+            }));
+        } else if (alvoModalContato === 'edicao') {
+            setDadosEdicao(prev => ({
+                ...prev,
+                nome: contatoEscolhido.nome,
+                contato_id: contatoEscolhido.contato_id || null
+            }));
+        }
     };
 
     const [editandoId, setEditandoId] = useState(null);
@@ -196,7 +170,6 @@ function TabelaContas({
             vencimento: '',
             contato_id: null
         });
-        setSugestoesAbertas(false);
         setMostrandoFormulario(true);
     };
 
@@ -230,7 +203,6 @@ function TabelaContas({
 
         aoSalvarNovaConta(dadosParaSalvar);
         setNovaContaTemp({ numero_boleto: '', categoria_id: '', nome: '', descricao: '', valor: '', emissao: dataHoje, vencimento: '', contato_id: null });
-        setSugestoesAbertas(false);
         setMostrandoFormulario(false);
     };
 
@@ -413,90 +385,35 @@ function TabelaContas({
                             </select>
                         </div>
                         <div className={styles.colunaNome}>
-                            <input
-                                className={styles.inputLinha}
-                                placeholder="Nome da conta *"
-                                required
-                                value={novaContaTemp.nome}
-                                autoComplete="off"
-                                onChange={(e) => mudarNomeNovaConta(e.target.value)}
-                                onFocus={() => {
-                                    if ((novaContaTemp.nome || '').trim()) setSugestoesAbertas(true);
-                                }}
-                                onBlur={() => {
-                                    // Aguarda para que o onMouseDown no item seja processado
-                                    setTimeout(() => setSugestoesAbertas(false), 200);
-                                }}
-                                onKeyDown={(e) => {
-                                    if (e.key === 'Escape') setSugestoesAbertas(false);
-                                }}
-                            />
-
-                            {/* FEEDBACK VISUAL SE É CONTATO REGISTRADO OU AVULSO NOVO */}
-                            {contatoVinculadoNovaConta ? (
-                                <div className={styles.statusVinculo}>
-                                    <span className={styles.badgeVinculoContato} title="Esta conta está vinculada aos dados deste contato">
-                                        <i className="fa-solid fa-address-book"></i> Vinculado a: <strong>{contatoVinculadoNovaConta.nome}</strong>
-                                        {contatoVinculadoNovaConta.chave_pix && (
-                                            <span className={styles.pixVinculadoMini}>
-                                                <i className="fa-brands fa-pix"></i> {contatoVinculadoNovaConta.chave_pix}
-                                            </span>
-                                        )}
-                                    </span>
-                                    <button
-                                        type="button"
-                                        className={styles.btnDesvincularMini}
-                                        onClick={desvincularContatoNovaConta}
-                                        title="Desvincular e salvar como favorecido avulso novo"
-                                    >
-                                        <i className="fa-solid fa-xmark"></i> Desvincular
-                                    </button>
-                                </div>
-                            ) : (novaContaTemp.nome && novaContaTemp.nome.trim().length > 0) ? (
-                                <div className={styles.statusVinculo}>
-                                    <span className={styles.badgeAvulso} title="Favorecido avulso/novo sem chave PIX vinculada">
-                                        <i className="fa-solid fa-user-pen"></i> Favorecido avulso / novo
-                                    </span>
-                                </div>
-                            ) : null}
-
-                            {sugestoesAbertas && sugestoesContatos.length > 0 && (
-                                <div className={styles.dropdownSugestoes}>
-                                    <div className={styles.cabecalhoSugestoes}>
-                                        <i className="fa-solid fa-address-book"></i> Contatos da Agenda ({sugestoesContatos.length})
-                                    </div>
-                                    {sugestoesContatos.map(contato => (
-                                        <div
-                                            key={contato.id}
-                                            className={styles.itemSugestao}
-                                            onMouseDown={() => selecionarSugestao(contato)}
-                                        >
-                                            <div className={styles.itemSugestaoInfo}>
-                                                <span className={styles.itemSugestaoNome}>{contato.nome}</span>
-                                                {contato.chave_pix ? (
-                                                    <span className={styles.itemSugestaoPix}>
-                                                        <i className="fa-brands fa-pix"></i> {contato.chave_pix}
-                                                    </span>
-                                                ) : (
-                                                    <span className={styles.itemSugestaoSemPix}>Sem chave PIX</span>
-                                                )}
-                                            </div>
-                                            <span className={`${styles.badgeSugestao} ${styles['badge_' + (contato.tipo || 'fornecedor')]}`}>
-                                                {contato.tipo === 'funcionario' ? 'Funcionário' : contato.tipo === 'terceirizado' ? 'Terceirizado' : 'Fornecedor'}
-                                            </span>
-                                        </div>
-                                    ))}
-                                    <div
-                                        className={styles.itemSugestaoAvulso}
-                                        onMouseDown={() => {
-                                            desvincularContatoNovaConta();
-                                            setSugestoesAbertas(false);
-                                        }}
-                                    >
-                                        <i className="fa-solid fa-pen-nib"></i> Manter como novo favorecido avulso (Sem PIX)
-                                    </div>
-                                </div>
-                            )}
+                            <div className={styles.campoNomeWrapper}>
+                                <input
+                                    className={styles.inputLinha}
+                                    placeholder="Nome da conta *"
+                                    required
+                                    value={novaContaTemp.nome}
+                                    autoComplete="off"
+                                    onChange={(e) => {
+                                        const val = e.target.value;
+                                        setNovaContaTemp(prev => ({
+                                            ...prev,
+                                            nome: val,
+                                            contato_id: null
+                                        }));
+                                    }}
+                                />
+                                <button
+                                    type="button"
+                                    className={`${styles.btnLupaContato} ${novaContaTemp.contato_id ? styles.btnContatoAtivo : ''}`}
+                                    onClick={() => {
+                                        setAlvoModalContato('nova');
+                                        setModalContatoAberto(true);
+                                    }}
+                                    title={novaContaTemp.contato_id ? "Contato vinculado. Clique para trocar ou alterar." : "Pesquisar ou cadastrar contato"}
+                                >
+                                    <i className="fa-solid fa-address-book"></i>
+                                    {novaContaTemp.contato_id && <span className={styles.badgePontoVerde} title="Contato vinculado"></span>}
+                                </button>
+                            </div>
                         </div>
                         <div className={styles.colunaDesc}>
                             <input
@@ -622,38 +539,44 @@ function TabelaContas({
 
                                     {/* NOME DA CONTA */}
                                     <div className={styles.colunaNome}>
-                                        <div className={styles.containerNomeConta}>
-                                            <input
-                                                className={`${styles.inputLinha} ${!estaEditando ? styles.inputLeitura : ''}`}
-                                                placeholder="Nome *"
-                                                required={estaEditando}
-                                                value={estaEditando ? dadosEdicao.nome : item.nome}
-                                                readOnly={!estaEditando}
-                                                onChange={(e) => aoMudarInputEdicao('nome', e.target.value)}
-                                            />
-                                            {!estaEditando && (item.contato_id || item.contato_nome) && (
-                                                <span
-                                                    className={styles.iconeContatoVinculado}
-                                                    title={`Contato vinculado: ${item.contato_nome || item.nome}${item.contato_chave_pix ? ` | PIX: ${item.contato_chave_pix}` : ''}`}
-                                                >
-                                                    <i className="fa-solid fa-address-book"></i>
-                                                    {item.contato_chave_pix && <i className="fa-brands fa-pix" style={{ marginLeft: '3px', color: '#10b981' }}></i>}
-                                                </span>
-                                            )}
-                                        </div>
-                                        {estaEditando && dadosEdicao.contato_id && (
-                                            <div className={styles.statusVinculo}>
-                                                <span className={styles.badgeVinculoContato}>
-                                                    <i className="fa-solid fa-link"></i> Contato vinculado
-                                                </span>
+                                        {estaEditando ? (
+                                            <div className={styles.campoNomeWrapper}>
+                                                <input
+                                                    className={styles.inputLinha}
+                                                    placeholder="Nome *"
+                                                    required
+                                                    value={dadosEdicao.nome}
+                                                    onChange={(e) => aoMudarInputEdicao('nome', e.target.value)}
+                                                />
                                                 <button
                                                     type="button"
-                                                    className={styles.btnDesvincularMini}
-                                                    onClick={() => aoMudarInputEdicao('contato_id', null)}
-                                                    title="Tornar avulso / remover vínculo"
+                                                    className={`${styles.btnLupaContato} ${dadosEdicao.contato_id ? styles.btnContatoAtivo : ''}`}
+                                                    onClick={() => {
+                                                        setAlvoModalContato('edicao');
+                                                        setModalContatoAberto(true);
+                                                    }}
+                                                    title={dadosEdicao.contato_id ? "Contato vinculado. Clique para trocar ou alterar." : "Pesquisar ou vincular contato"}
                                                 >
-                                                    <i className="fa-solid fa-xmark"></i> Desvincular
+                                                    <i className="fa-solid fa-address-book"></i>
+                                                    {dadosEdicao.contato_id && <span className={styles.badgePontoVerde} title="Contato vinculado"></span>}
                                                 </button>
+                                            </div>
+                                        ) : (
+                                            <div className={styles.containerNomeConta}>
+                                                <input
+                                                    className={`${styles.inputLinha} ${styles.inputLeitura}`}
+                                                    value={item.nome}
+                                                    readOnly
+                                                />
+                                                {(item.contato_id || item.contato_nome) && (
+                                                    <span
+                                                        className={styles.iconeContatoVinculado}
+                                                        title={`Contato vinculado: ${item.contato_nome || item.nome}${item.contato_chave_pix ? ` | PIX: ${item.contato_chave_pix}` : ''}`}
+                                                    >
+                                                        <i className="fa-solid fa-address-book"></i>
+                                                        {item.contato_chave_pix && <i className="fa-brands fa-pix" style={{ marginLeft: '3px', color: '#10b981' }}></i>}
+                                                    </span>
+                                                )}
                                             </div>
                                         )}
                                     </div>
@@ -825,6 +748,20 @@ function TabelaContas({
                 titulo={modalAlerta.titulo}
                 mensagem={modalAlerta.mensagem}
                 aoConfirmar={() => setModalAlerta(prev => ({ ...prev, aberta: false }))}
+            />
+
+            {/* MODAL DE SELEÇÃO E CADASTRO RÁPIDO DE CONTATO */}
+            <ModalSelecionarContato
+                aberto={modalContatoAberto}
+                aoFechar={() => setModalContatoAberto(false)}
+                contatos={contatos}
+                contatoSelecionadoId={alvoModalContato === 'nova' ? novaContaTemp.contato_id : dadosEdicao.contato_id}
+                nomeAtual={alvoModalContato === 'nova' ? novaContaTemp.nome : (dadosEdicao.nome || '')}
+                aoConfirmar={lidarComConfirmacaoContato}
+                usuarioId={usuarioId}
+                aoContatoCriado={() => {
+                    if (aoRecarregarContatos) aoRecarregarContatos();
+                }}
             />
         </div>
     );

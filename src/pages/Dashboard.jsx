@@ -558,9 +558,11 @@ function Dashboard({ usuarioId, tema = 'escuro' }) {
             {/* 3. TABELA DE CONTAS */}
             {/* Passamos contatos para sugestão / autocomplete em tempo real */}
             <TabelaContas
+                usuarioId={usuarioId}
                 categorias={listaCategorias}
                 dados={contasFiltradasParaExibir}
                 contatos={listaContatos}
+                aoRecarregarContatos={recarregarContatos}
                 aoClicarPagar={abrirModalPagamento}
                 aoSalvarNovaConta={criarConta}
                 aoSalvarEdicao={editarConta}
