@@ -385,35 +385,63 @@ function TabelaContas({
                             </select>
                         </div>
                         <div className={styles.colunaNome}>
-                            <div className={styles.campoNomeWrapper}>
-                                <input
-                                    className={styles.inputLinha}
-                                    placeholder="Nome da conta *"
-                                    required
-                                    value={novaContaTemp.nome}
-                                    autoComplete="off"
-                                    onChange={(e) => {
-                                        const val = e.target.value;
-                                        setNovaContaTemp(prev => ({
-                                            ...prev,
-                                            nome: val,
-                                            contato_id: null
-                                        }));
-                                    }}
-                                />
+                            {!novaContaTemp.nome ? (
                                 <button
                                     type="button"
-                                    className={`${styles.btnLupaContato} ${novaContaTemp.contato_id ? styles.btnContatoAtivo : ''}`}
+                                    className={`${styles.btnSeletorNome} ${styles.btnSeletorNomeVazio}`}
                                     onClick={() => {
                                         setAlvoModalContato('nova');
                                         setModalContatoAberto(true);
                                     }}
-                                    title={novaContaTemp.contato_id ? "Contato vinculado. Clique para trocar ou alterar." : "Pesquisar ou cadastrar contato"}
+                                    title="Clique para selecionar da agenda ou digitar um favorecido avulso"
                                 >
-                                    <i className="fa-solid fa-address-book"></i>
-                                    {novaContaTemp.contato_id && <span className={styles.badgePontoVerde} title="Contato vinculado"></span>}
+                                    <div className={styles.conteudoBtnNome}>
+                                        <i className="fa-solid fa-user-plus"></i>
+                                        <span>Selecionar Favorecido *</span>
+                                    </div>
+                                    <i className="fa-solid fa-chevron-down" style={{ fontSize: '0.7rem', opacity: 0.5 }}></i>
                                 </button>
-                            </div>
+                            ) : novaContaTemp.contato_id ? (
+                                <button
+                                    type="button"
+                                    className={`${styles.btnSeletorNome} ${styles.btnSeletorNomeContato}`}
+                                    onClick={() => {
+                                        setAlvoModalContato('nova');
+                                        setModalContatoAberto(true);
+                                    }}
+                                    title="Contato da agenda vinculado. Clique para alterar ou mudar para avulso."
+                                >
+                                    <div className={styles.conteudoBtnNome}>
+                                        <i className="fa-solid fa-address-book" style={{ color: '#10b981' }}></i>
+                                        <span className={styles.textoNomeBtn}>{novaContaTemp.nome}</span>
+                                        <span className={`${styles.tagTipoBtn} ${styles['badge_' + (contatos.find(c => c.id === novaContaTemp.contato_id)?.tipo || 'fornecedor')]}`}>
+                                            {contatos.find(c => c.id === novaContaTemp.contato_id)?.tipo === 'funcionario'
+                                                ? 'Func'
+                                                : contatos.find(c => c.id === novaContaTemp.contato_id)?.tipo === 'terceirizado'
+                                                ? 'Terc'
+                                                : 'Forn'}
+                                        </span>
+                                    </div>
+                                    <i className="fa-solid fa-pen" style={{ fontSize: '0.75rem', opacity: 0.7 }}></i>
+                                </button>
+                            ) : (
+                                <button
+                                    type="button"
+                                    className={`${styles.btnSeletorNome} ${styles.btnSeletorNomeAvulso}`}
+                                    onClick={() => {
+                                        setAlvoModalContato('nova');
+                                        setModalContatoAberto(true);
+                                    }}
+                                    title="Favorecido avulso. Clique para alterar ou vincular a um contato da agenda."
+                                >
+                                    <div className={styles.conteudoBtnNome}>
+                                        <i className="fa-solid fa-user-pen" style={{ color: '#94a3b8' }}></i>
+                                        <span className={styles.textoNomeBtn}>{novaContaTemp.nome}</span>
+                                        <span className={styles.tagAvulsoBtn}>Avulso</span>
+                                    </div>
+                                    <i className="fa-solid fa-pen" style={{ fontSize: '0.75rem', opacity: 0.7 }}></i>
+                                </button>
+                            )}
                         </div>
                         <div className={styles.colunaDesc}>
                             <input
@@ -540,27 +568,63 @@ function TabelaContas({
                                     {/* NOME DA CONTA */}
                                     <div className={styles.colunaNome}>
                                         {estaEditando ? (
-                                            <div className={styles.campoNomeWrapper}>
-                                                <input
-                                                    className={styles.inputLinha}
-                                                    placeholder="Nome *"
-                                                    required
-                                                    value={dadosEdicao.nome}
-                                                    onChange={(e) => aoMudarInputEdicao('nome', e.target.value)}
-                                                />
+                                            !dadosEdicao.nome ? (
                                                 <button
                                                     type="button"
-                                                    className={`${styles.btnLupaContato} ${dadosEdicao.contato_id ? styles.btnContatoAtivo : ''}`}
+                                                    className={`${styles.btnSeletorNome} ${styles.btnSeletorNomeVazio}`}
                                                     onClick={() => {
                                                         setAlvoModalContato('edicao');
                                                         setModalContatoAberto(true);
                                                     }}
-                                                    title={dadosEdicao.contato_id ? "Contato vinculado. Clique para trocar ou alterar." : "Pesquisar ou vincular contato"}
+                                                    title="Clique para selecionar da agenda ou digitar um favorecido avulso"
                                                 >
-                                                    <i className="fa-solid fa-address-book"></i>
-                                                    {dadosEdicao.contato_id && <span className={styles.badgePontoVerde} title="Contato vinculado"></span>}
+                                                    <div className={styles.conteudoBtnNome}>
+                                                        <i className="fa-solid fa-user-plus"></i>
+                                                        <span>Selecionar Favorecido *</span>
+                                                    </div>
+                                                    <i className="fa-solid fa-chevron-down" style={{ fontSize: '0.7rem', opacity: 0.5 }}></i>
                                                 </button>
-                                            </div>
+                                            ) : dadosEdicao.contato_id ? (
+                                                <button
+                                                    type="button"
+                                                    className={`${styles.btnSeletorNome} ${styles.btnSeletorNomeContato}`}
+                                                    onClick={() => {
+                                                        setAlvoModalContato('edicao');
+                                                        setModalContatoAberto(true);
+                                                    }}
+                                                    title="Contato da agenda vinculado. Clique para alterar ou mudar para avulso."
+                                                >
+                                                    <div className={styles.conteudoBtnNome}>
+                                                        <i className="fa-solid fa-address-book" style={{ color: '#10b981' }}></i>
+                                                        <span className={styles.textoNomeBtn}>{dadosEdicao.nome}</span>
+                                                        <span className={`${styles.tagTipoBtn} ${styles['badge_' + (contatos.find(c => c.id === dadosEdicao.contato_id)?.tipo || 'fornecedor')]}`}>
+                                                            {contatos.find(c => c.id === dadosEdicao.contato_id)?.tipo === 'funcionario'
+                                                                ? 'Func'
+                                                                : contatos.find(c => c.id === dadosEdicao.contato_id)?.tipo === 'terceirizado'
+                                                                ? 'Terc'
+                                                                : 'Forn'}
+                                                        </span>
+                                                    </div>
+                                                    <i className="fa-solid fa-pen" style={{ fontSize: '0.75rem', opacity: 0.7 }}></i>
+                                                </button>
+                                            ) : (
+                                                <button
+                                                    type="button"
+                                                    className={`${styles.btnSeletorNome} ${styles.btnSeletorNomeAvulso}`}
+                                                    onClick={() => {
+                                                        setAlvoModalContato('edicao');
+                                                        setModalContatoAberto(true);
+                                                    }}
+                                                    title="Favorecido avulso. Clique para alterar ou vincular a um contato da agenda."
+                                                >
+                                                    <div className={styles.conteudoBtnNome}>
+                                                        <i className="fa-solid fa-user-pen" style={{ color: '#94a3b8' }}></i>
+                                                        <span className={styles.textoNomeBtn}>{dadosEdicao.nome}</span>
+                                                        <span className={styles.tagAvulsoBtn}>Avulso</span>
+                                                    </div>
+                                                    <i className="fa-solid fa-pen" style={{ fontSize: '0.75rem', opacity: 0.7 }}></i>
+                                                </button>
+                                            )
                                         ) : (
                                             <div className={styles.containerNomeConta}>
                                                 <input

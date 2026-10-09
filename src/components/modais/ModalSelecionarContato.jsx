@@ -12,28 +12,36 @@ function ModalSelecionarContato({
     usuarioId,
     aoContatoCriado
 }) {
+    // Modo de visualização: 'lista' | 'novo' | 'avulso'
+    const [modoVisao, setModoVisao] = useState('lista');
+
     const [busca, setBusca] = useState('');
     const [abaTipo, setAbaTipo] = useState('todos'); // 'todos' | 'fornecedor' | 'funcionario' | 'terceirizado'
     const [contatoEscolhido, setContatoEscolhido] = useState(null);
 
     // Formulário de Cadastro de Novo Contato no Modal
-    const [modoCriarNovo, setModoCriarNovo] = useState(false);
     const [novoNome, setNovoNome] = useState('');
     const [novoTipo, setNovoTipo] = useState('fornecedor');
     const [novoPix, setNovoPix] = useState('');
     const [salvandoNovo, setSalvandoNovo] = useState(false);
     const [erroNovo, setErroNovo] = useState('');
 
+    // Formulário de Favorecido Avulso
+    const [nomeAvulso, setNomeAvulso] = useState('');
+    const [erroAvulso, setErroAvulso] = useState('');
+
     // Sincroniza estado inicial sempre que o modal abre
     useEffect(() => {
         if (aberto) {
             setBusca('');
             setAbaTipo('todos');
-            setModoCriarNovo(false);
+            setModoVisao('lista');
             setErroNovo('');
+            setErroAvulso('');
             setNovoNome(nomeAtual || '');
             setNovoTipo('fornecedor');
             setNovoPix('');
+            setNomeAvulso(nomeAtual || '');
 
             if (contatoSelecionadoId) {
                 const atual = contatos.find(c => Number(c.id) === Number(contatoSelecionadoId));
@@ -76,11 +84,15 @@ function ModalSelecionarContato({
         aoFechar();
     };
 
-    const usarComoAvulso = (nomeEspecifico) => {
-        const valorNome = (nomeEspecifico || busca || nomeAtual || '').trim().toUpperCase();
-        if (!valorNome) return;
+    const confirmarFavorecidoAvulso = (e) => {
+        if (e) e.preventDefault();
+        const valorLimpo = (nomeAvulso || busca || nomeAtual || '').trim().toUpperCase();
+        if (!valorLimpo) {
+            setErroAvulso('Informe o nome do favorecido avulso.');
+            return;
+        }
         aoConfirmar({
-            nome: valorNome,
+            nome: valorLimpo,
             contato_id: null,
             chave_pix: '',
             tipo: ''
@@ -134,8 +146,18 @@ function ModalSelecionarContato({
                 {/* CABEÇALHO */}
                 <div className={styles.modalHeader}>
                     <h3 className={styles.tituloModal}>
-                        <i className="fa-solid fa-address-book"></i>
-                        {modoCriarNovo ? 'Cadastrar Novo Contato' : 'Selecionar Favorecido / Contato'}
+                        <i className={
+                            modoVisao === 'novo'
+                                ? "fa-solid fa-user-plus"
+                                : modoVisao === 'avulso'
+                                ? "fa-solid fa-user-pen"
+                                : "fa-solid fa-address-book"
+                        }></i>
+                        {modoVisao === 'novo'
+                            ? 'Cadastrar Novo Contato na Agenda'
+                            : modoVisao === 'avulso'
+                            ? 'Definir Favorecido Avulso'
+                            : 'Selecionar Favorecido / Contato'}
                     </h3>
                     <button className={styles.btnFechar} onClick={aoFechar} title="Fechar modal">
                         <i className="fa-solid fa-xmark"></i>
@@ -145,11 +167,11 @@ function ModalSelecionarContato({
                 {/* CORPO DO MODAL */}
                 <div className={styles.modalCorpo}>
 
-                    {modoCriarNovo ? (
-                        /* FORMULÁRIO DE CADASTRO RÁPIDO */
+                    {/* MODO 1: CADASTRO RÁPIDO DE NOVO CONTATO */}
+                    {modoVisao === 'novo' && (
                         <div className={styles.areaNovoContato}>
                             <h4 className={styles.tituloNovoContato}>
-                                <i className="fa-solid fa-user-plus"></i> Novo Contato na sua Agenda
+                                <i className="fa-solid fa-user-plus"></i> Novo Contato com PIX Opcional
                             </h4>
 
                             {erroNovo && (
@@ -201,7 +223,7 @@ function ModalSelecionarContato({
                                 <button
                                     type="button"
                                     className={styles.btnCancelarNovo}
-                                    onClick={() => setModoCriarNovo(false)}
+                                    onClick={() => setModoVisao('lista')}
                                     disabled={salvandoNovo}
                                 >
                                     Voltar para Lista
@@ -224,8 +246,59 @@ function ModalSelecionarContato({
                                 </button>
                             </div>
                         </div>
-                    ) : (
-                        /* TELA DE BUSCA E LISTAGEM */
+                    )}
+
+                    {/* MODO 2: FAVORECIDO AVULSO */}
+                    {modoVisao === 'avulso' && (
+                        <div className={styles.areaAvulso}>
+                            <h4 className={styles.tituloAvulso}>
+                                <i className="fa-solid fa-user-pen"></i> Favorecido Avulso (Sem Salvar na Agenda)
+                            </h4>
+                            <p className={styles.descAvulso}>
+                                Utilize esta opção para pagamentos esporádicos, avulsos ou despesas sem chave PIX cadastrada. O nome ficará gravado apenas nesta conta.
+                            </p>
+
+                            {erroAvulso && (
+                                <div style={{ color: '#ef4444', fontSize: '0.8rem', fontWeight: 600 }}>
+                                    <i className="fa-solid fa-triangle-exclamation"></i> {erroAvulso}
+                                </div>
+                            )}
+
+                            <div className={styles.campoForm}>
+                                <label className={styles.labelForm}>Nome do Favorecido Avulso *</label>
+                                <input
+                                    className={styles.inputForm}
+                                    placeholder="Ex: PADARIA CENTRAL, CARTÓRIO, TAXA..."
+                                    value={nomeAvulso}
+                                    autoFocus
+                                    onChange={(e) => setNomeAvulso(e.target.value)}
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter') confirmarFavorecidoAvulso();
+                                    }}
+                                />
+                            </div>
+
+                            <div className={styles.acoesNovoContato}>
+                                <button
+                                    type="button"
+                                    className={styles.btnCancelarNovo}
+                                    onClick={() => setModoVisao('lista')}
+                                >
+                                    Voltar para Lista
+                                </button>
+                                <button
+                                    type="button"
+                                    className={styles.btnSalvarAvulso}
+                                    onClick={confirmarFavorecidoAvulso}
+                                >
+                                    <i className="fa-solid fa-check"></i> Confirmar como Avulso
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* MODO 3: TELA DE BUSCA E LISTAGEM DE CONTATOS */}
+                    {modoVisao === 'lista' && (
                         <>
                             {/* BARRA DE PESQUISA */}
                             <div className={styles.searchContainer}>
@@ -271,16 +344,25 @@ function ModalSelecionarContato({
                                 </button>
                             </div>
 
-                            {/* OPÇÃO DE USAR COMO AVULSO QUANDO O USUÁRIO DIGITA ALGO */}
+                            {/* ATALHO PARA AVULSO AO DIGITAR UMA BUSCA */}
                             {busca.trim().length > 0 && (
                                 <div className={styles.boxOpcaoAvulsa}>
                                     <p className={styles.textoAvulso}>
-                                        Usar <strong>"{busca.trim().toUpperCase()}"</strong> apenas nesta conta sem cadastrar contato:
+                                        Usar <strong>"{busca.trim().toUpperCase()}"</strong> como favorecido avulso:
                                     </p>
                                     <button
                                         type="button"
                                         className={styles.btnUsarAvulso}
-                                        onClick={() => usarComoAvulso(busca)}
+                                        onClick={() => {
+                                            setNomeAvulso(busca.trim().toUpperCase());
+                                            aoConfirmar({
+                                                nome: busca.trim().toUpperCase(),
+                                                contato_id: null,
+                                                chave_pix: '',
+                                                tipo: ''
+                                            });
+                                            aoFechar();
+                                        }}
                                     >
                                         <i className="fa-solid fa-pen-nib"></i> Usar como Avulso
                                     </button>
@@ -293,19 +375,28 @@ function ModalSelecionarContato({
                                     <div className={styles.boxVazio}>
                                         <i className="fa-solid fa-user-slash" style={{ fontSize: '1.5rem', color: '#64748b' }}></i>
                                         <span>Nenhum contato encontrado para a busca.</span>
-                                        {busca.trim() && (
+                                        <div style={{ display: 'flex', gap: '8px', marginTop: '8px', flexWrap: 'wrap', justifyContent: 'center' }}>
                                             <button
                                                 type="button"
                                                 className={styles.btnAbrirNovoContato}
-                                                style={{ marginTop: '8px' }}
                                                 onClick={() => {
                                                     setNovoNome(busca.trim().toUpperCase());
-                                                    setModoCriarNovo(true);
+                                                    setModoVisao('novo');
                                                 }}
                                             >
-                                                <i className="fa-solid fa-plus"></i> Cadastrar "{busca.trim().toUpperCase()}" agora
+                                                <i className="fa-solid fa-plus"></i> Cadastrar "{busca.trim().toUpperCase() || 'Novo'}"
                                             </button>
-                                        )}
+                                            <button
+                                                type="button"
+                                                className={styles.btnAbrirAvulso}
+                                                onClick={() => {
+                                                    setNomeAvulso(busca.trim().toUpperCase());
+                                                    setModoVisao('avulso');
+                                                }}
+                                            >
+                                                <i className="fa-solid fa-pen-nib"></i> Usar como Avulso
+                                            </button>
+                                        </div>
                                     </div>
                                 ) : (
                                     contatosFiltrados.map(contato => {
@@ -359,18 +450,32 @@ function ModalSelecionarContato({
 
                 {/* RODAPÉ DO MODAL */}
                 <div className={styles.modalFooter}>
-                    {!modoCriarNovo ? (
+                    {modoVisao === 'lista' ? (
                         <>
-                            <button
-                                type="button"
-                                className={styles.btnAbrirNovoContato}
-                                onClick={() => {
-                                    setNovoNome(busca.trim() ? busca.trim().toUpperCase() : (nomeAtual || ''));
-                                    setModoCriarNovo(true);
-                                }}
-                            >
-                                <i className="fa-solid fa-plus"></i> Novo Contato
-                            </button>
+                            <div className={styles.footerAcoesEsquerda}>
+                                <button
+                                    type="button"
+                                    className={styles.btnAbrirNovoContato}
+                                    onClick={() => {
+                                        setNovoNome(busca.trim() ? busca.trim().toUpperCase() : (nomeAtual || ''));
+                                        setModoVisao('novo');
+                                    }}
+                                    title="Adicionar um novo contato à agenda com PIX opcional"
+                                >
+                                    <i className="fa-solid fa-plus"></i> Novo Contato
+                                </button>
+                                <button
+                                    type="button"
+                                    className={styles.btnAbrirAvulso}
+                                    onClick={() => {
+                                        setNomeAvulso(busca.trim() ? busca.trim().toUpperCase() : (nomeAtual || ''));
+                                        setModoVisao('avulso');
+                                    }}
+                                    title="Digitar um nome avulso sem salvar na agenda"
+                                >
+                                    <i className="fa-solid fa-pen-nib"></i> Favorecido Avulso
+                                </button>
+                            </div>
 
                             <div className={styles.footerAcoesDireita}>
                                 <button type="button" className={styles.btnCancelar} onClick={aoFechar}>
@@ -391,9 +496,9 @@ function ModalSelecionarContato({
                             <button
                                 type="button"
                                 className={styles.btnCancelar}
-                                onClick={() => setModoCriarNovo(false)}
+                                onClick={() => setModoVisao('lista')}
                             >
-                                Voltar
+                                Voltar para Lista
                             </button>
                         </div>
                     )}

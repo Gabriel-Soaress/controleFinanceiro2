@@ -313,71 +313,126 @@
     border-color: #a7f3d0;
 }
 
-/* CAMPO NOME COM BOTÃO DO MODAL DE CONTATO */
-.campoNomeWrapper {
-    display: flex;
-    align-items: center;
-    gap: 4px;
+/* CAMPO NOME COMO BOTÃO SELETOR BLINDADO */
+.btnSeletorNome {
     width: 100%;
-    position: relative;
-}
-
-.btnLupaContato {
-    background: #1e293b;
-    border: 1px solid #334155;
-    color: #94a3b8;
-    border-radius: 6px;
-    width: 32px;
-    height: 32px;
+    min-height: 38px;
+    padding: 6px 10px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
     display: flex;
     align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    position: relative;
-    flex-shrink: 0;
+    justify-content: space-between;
+    gap: 8px;
     transition: all 0.2s ease;
-    font-size: 0.9rem;
+    text-align: left;
+    box-sizing: border-box;
 }
 
-.btnLupaContato:hover {
-    color: #3b82f6;
+/* Quando não tem ninguém selecionado */
+.btnSeletorNomeVazio {
+    background: #1e293b;
+    border: 1px dashed #475569;
+    color: #94a3b8;
+}
+.btnSeletorNomeVazio:hover {
     border-color: #3b82f6;
-    background: rgba(59, 130, 246, 0.1);
+    color: #3b82f6;
+    background: rgba(59, 130, 246, 0.08);
 }
 
-.btnContatoAtivo {
-    color: #10b981 !important;
-    border-color: rgba(16, 185, 129, 0.4) !important;
-    background: rgba(16, 185, 129, 0.12) !important;
+/* Quando é um CONTATO da agenda */
+.btnSeletorNomeContato {
+    background: rgba(16, 185, 129, 0.12);
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    color: #f8fafc;
+}
+.btnSeletorNomeContato:hover {
+    border-color: #10b981;
+    background: rgba(16, 185, 129, 0.2);
+    box-shadow: 0 0 12px rgba(16, 185, 129, 0.2);
 }
 
-.badgePontoVerde {
-    position: absolute;
-    top: 5px;
-    right: 5px;
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: #10b981;
-    box-shadow: 0 0 6px #10b981;
+/* Quando é um AVULSO */
+.btnSeletorNomeAvulso {
+    background: rgba(30, 41, 59, 0.8);
+    border: 1px solid #475569;
+    color: #f8fafc;
+}
+.btnSeletorNomeAvulso:hover {
+    border-color: #94a3b8;
+    background: #334155;
 }
 
-:global(body.modo-claro) .btnLupaContato {
-    background: #f1f5f9;
+.conteudoBtnNome {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    overflow: hidden;
+    flex: 1;
+}
+
+.textoNomeBtn {
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 140px;
+}
+
+.tagTipoBtn {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    padding: 1px 6px;
+    border-radius: 999px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.tagAvulsoBtn {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    padding: 1px 6px;
+    border-radius: 999px;
+    background: rgba(148, 163, 184, 0.2);
+    color: #cbd5e1;
+    border: 1px solid rgba(148, 163, 184, 0.3);
+    white-space: nowrap;
+}
+
+:global(body.modo-claro) .btnSeletorNomeVazio {
+    background: #f8fafc;
     border-color: #cbd5e1;
     color: #64748b;
 }
 
-:global(body.modo-claro) .btnLupaContato:hover {
-    background: #e0f2fe;
-    border-color: #38bdf8;
-    color: #0284c7;
+:global(body.modo-claro) .btnSeletorNomeVazio:hover {
+    background: #eff6ff;
+    border-color: #3b82f6;
+    color: #2563eb;
 }
 
-:global(body.modo-claro) .btnContatoAtivo {
-    background: #dcfce7 !important;
-    border-color: #86efac !important;
-    color: #15803d !important;
+:global(body.modo-claro) .btnSeletorNomeContato {
+    background: #ecfdf5;
+    border-color: #a7f3d0;
+    color: #065f46;
+}
+
+:global(body.modo-claro) .btnSeletorNomeContato:hover {
+    background: #d1fae5;
+    border-color: #10b981;
+}
+
+:global(body.modo-claro) .btnSeletorNomeAvulso {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+    color: #1e293b;
+}
+
+:global(body.modo-claro) .btnSeletorNomeAvulso:hover {
+    background: #e2e8f0;
 }
 
 .containerNomeConta {
